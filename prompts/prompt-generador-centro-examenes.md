@@ -4,7 +4,7 @@ Quiero que generes un **documento en formato LaTeX (`.tex`)** que represente la 
 
 El documento combina **datos reales mínimos del centro** con **información completamente ficticia**, siguiendo estrictamente las reglas definidas a continuación.
 
-> **Aviso para quien genera el documento:** las reglas de las secciones 1 y 2 son instrucciones internas. La distinción entre dato real y dato ficticio **no se escribe en el documento**: el `.tex` debe presentar todos los datos como los datos del centro, sin marcar, explicar ni declarar su origen.
+> **Aviso para quien genera el documento:** las reglas de las secciones 1, 2 y 6 son instrucciones internas. La distinción entre dato real y dato ficticio **no se escribe en el documento**: el `.tex` debe presentar todos los datos como los datos del centro, sin marcar, explicar ni declarar su origen.
 
 ---
 
@@ -45,8 +45,6 @@ No debes reutilizar ningún otro dato real encontrado en Internet. Si durante la
 * políticas;
 * catálogo de exámenes;
 * protocolos de atención;
-* comportamiento conversacional;
-* ejemplos de conversaciones;
 * cualquier otro dato no incluido explícitamente entre los tres datos reales permitidos.
 
 Estos tres datos reales se incorporan al documento **como los datos del centro**, sin ninguna marca, etiqueta, caja, color, nota al pie, encabezado o advertencia que los distinga del resto.
@@ -68,8 +66,15 @@ Queda prohibido incluir en el `.tex`:
 * **Avisos, disclaimers o advertencias** sobre la relación del documento con el centro real.
 * El sufijo **"(ficticio)"** o equivalentes en títulos, subtítulos, celdas, cajas, columnas o notas.
 * Frases del tipo "este dato fue inventado", "no corresponde a la realidad", "el número no es real", "dominio reservado", "el buzón no existe", "profesional ficticio", "ningún profesional real", etc.
+* Cualquier mención a un **agente, cotizador, asistente, simulador, sistema automatizado** o a quien consulta el documento. El documento habla solo del centro y de sus pacientes.
+* **Patrones de comportamiento conversacional** del centro (por ejemplo, listas de formas de responder, códigos de patrón o guiones de atención telefónica).
+* **Ejemplos de conversaciones** o diálogos, y respuestas esperadas de quien consulta.
+* **Listas de comportamientos que un tercero no debe seguir**, errores típicos o fallos posibles.
+* **Esquemas de datos**, listas de campos, tipos de dato o formatos de salida de una cotización.
+* **Casos de prueba**, expectativas o criterios de evaluación.
+* **Horas o fechas concretas de agenda** (por ejemplo, "el próximo cupo es el jueves 12 a las 09:30"). El documento define reglas de horario y anticipación, no cupos disponibles en una fecha determinada.
 
-El documento debe leerse **como una fuente de datos del centro, nada más**: información general, políticas, catálogo de exámenes, disponibilidad, precios, protocolos de atención, comportamiento de atención y casos de prueba.
+El documento debe leerse **como una fuente de datos del centro, nada más**: información general, políticas, catálogo de exámenes, reglas de disponibilidad, precios y protocolos de atención.
 
 ---
 
@@ -108,7 +113,7 @@ Debe contener como mínimo:
 
 # 4. Políticas y reglas del centro
 
-Crea un conjunto de políticas para que el documento pueda utilizarse como una fuente realista de prueba. Incluye, como mínimo:
+Crea un conjunto de políticas del centro. Incluye, como mínimo:
 
 ## 4.1 Política de cotización
 
@@ -117,7 +122,7 @@ Define:
 * qué información necesita el centro para entregar un precio;
 * cuándo necesita conocer la previsión;
 * cuándo puede entregar un precio particular;
-* qué ocurre si el usuario no indica su previsión;
+* qué ocurre si el paciente no indica su previsión;
 * qué información puede quedar pendiente de confirmación.
 
 ## 4.2 Política de disponibilidad
@@ -132,14 +137,12 @@ Define:
 
 ## 4.3 Política de reserva
 
-La reserva estará fuera del alcance del agente del cotizador. Sin embargo, define:
+Define, desde el punto de vista del centro:
 
-* qué datos solicitaría el centro para reservar;
-* en qué momento podría solicitar nombre;
-* qué datos de contacto podría solicitar;
-* qué información sería necesaria para confirmar una hora.
-
-El agente del cotizador **no debe realizar reservas**.
+* qué datos solicita el centro para reservar;
+* en qué momento solicita el nombre del paciente;
+* qué datos de contacto solicita;
+* qué información es necesaria para confirmar una hora.
 
 ## 4.4 Política de datos personales
 
@@ -147,8 +150,8 @@ Define que durante una simple cotización:
 
 * no se requiere RUT;
 * no se requieren datos personales sensibles;
-* no se debe solicitar información innecesaria;
-* los datos personales solamente podrían solicitarse en una etapa de reserva.
+* no se solicita información innecesaria;
+* los datos personales solamente se solicitan en la etapa de reserva.
 
 No utilices datos personales de personas reales como parte del contenido.
 
@@ -156,18 +159,24 @@ No utilices datos personales de personas reales como parte del contenido.
 
 # 5. Catálogo de exámenes
 
-Crea exactamente **3 exámenes oftalmológicos convencionales**.
+Crea exactamente **3 exámenes oftalmológicos convencionales**, usando estos códigos y exámenes:
 
-Los exámenes deben ser plausibles y habituales en un centro oftalmológico, pero toda la información específica del centro debe ser creada para este documento.
+| Código | Examen |
+|---|---|
+| OFT-CV-001 | Curvimetría |
+| OFT-GLU-002 | Medición de glaucoma |
+| OFT-FDO-003 | Fondo de ojo |
 
-Para cada examen incluye:
+Los códigos deben escribirse exactamente así. Toda la información específica del centro para cada examen (requisitos, precios, horarios, preparación, etc.) debe ser creada para este documento.
+
+Para cada examen, usa **exactamente los siguientes títulos de subsección, en este orden**: Identificación, Descripción, Requisitos, Atención, Precios, Resultados, Recomendaciones, Conducción y acompañamiento.
 
 ### Identificación
 
 * Código.
 * Nombre técnico.
 * Nombre común.
-* Posibles formas coloquiales en que un usuario podría solicitarlo.
+* Posibles formas coloquiales en que un paciente podría solicitarlo.
 * Categoría.
 
 ### Descripción
@@ -199,14 +208,14 @@ Para cada examen incluye:
 
 ### Precios
 
-Incluye:
+Incluye, en una tabla:
 
 * precio particular;
 * precio Fonasa;
 * precio Isapre;
 * precio mediante convenio.
 
-No hagas que todos los exámenes tengan necesariamente las mismas condiciones de precio. El comportamiento debe ser suficientemente variado.
+Escribe los montos siempre en el mismo formato (por ejemplo, `$ 45.000`). No hagas que todos los exámenes tengan necesariamente las mismas condiciones de precio. El comportamiento debe ser suficientemente variado.
 
 ### Resultados
 
@@ -236,9 +245,11 @@ Indica explícitamente si:
 * podría recomendarse acompañante;
 * existe alguna condición que modifique esta recomendación.
 
+Al final del catálogo puedes incluir una **tabla resumen comparativa** de los tres exámenes, sin comentarios sobre errores posibles ni sobre cómo interpretarla.
+
 ---
 
-# 6. Variabilidad de la información
+# 6. Variabilidad de la información (instrucción interna)
 
 No diseñes los tres exámenes utilizando exactamente la misma estructura lógica.
 
@@ -253,7 +264,7 @@ La información debe presentar variabilidad. Por ejemplo:
 * uno puede requerir acompañante solamente en determinadas circunstancias;
 * otro puede no requerirlo.
 
-El objetivo es generar una fuente suficientemente rica para probar la capacidad de razonamiento y adaptación.
+Esta sección es una instrucción para quien genera el documento: no escribas en el `.tex` que la información fue diseñada con variabilidad ni para qué.
 
 ---
 
@@ -271,12 +282,16 @@ Utiliza una estructura profesional, por ejemplo:
 * subsecciones;
 * tablas;
 * cajas, cuando aporten claridad al contenido del centro (por ejemplo, advertencias de preparación o resúmenes de precios), pero **nunca** para clasificar los datos según su origen;
-* ejemplos de conversaciones;
 * tablas de precios;
-* tablas de disponibilidad;
-* casos de prueba.
+* tablas de horarios y reglas de disponibilidad.
 
-Evita utilizar paquetes innecesarios. El documento debe compilar correctamente en un entorno LaTeX estándar.
+El texto del PDF compilado debe poder **extraerse sin errores** (copiar y pegar debe producir las mismas palabras). Para eso:
+
+* usa `\usepackage[T1]{fontenc}`, `\usepackage{lmodern}` y `\usepackage[utf8]{inputenc}`;
+* incluye `\usepackage{cmap}` antes de `fontenc` y `\pdfgentounicode=1` con `\input{glyphtounicode}`;
+* desactiva las ligaduras tipográficas (por ejemplo, con `\usepackage{microtype}` y `\DisableLigatures{encoding = *, family = *}`), para que palabras como "confirmar" o "firma" no pierdan letras al extraer el texto.
+
+Evita utilizar paquetes innecesarios. El documento debe compilar correctamente en un entorno LaTeX estándar con `pdflatex`.
 
 Finalmente, guarda el resultado como:
 
@@ -292,12 +307,15 @@ Estos criterios se verifican para decidir si el documento está listo. **No debe
 * nombre, dirección y teléfono provienen de una fuente web pública;
 * esos son los únicos datos reales utilizados;
 * todo el resto de la información fue creada para este documento;
-* existen exactamente tres exámenes;
+* existen exactamente tres exámenes, con los códigos OFT-CV-001, OFT-GLU-002 y OFT-FDO-003;
+* cada examen usa los mismos títulos de subsección, en el mismo orden;
 * los tres exámenes contienen información suficiente para una cotización;
-* existen precios, disponibilidad, requisitos y recomendaciones;
+* existen precios, reglas de disponibilidad, requisitos y recomendaciones;
 * existen políticas;
 * no hay datos personales de personas reales;
 * la información es consistente entre las distintas secciones;
-* el documento compila correctamente;
+* el documento compila correctamente y su texto se extrae sin letras perdidas;
+* el documento no contiene patrones conversacionales, ejemplos de conversaciones, esquemas de campos, casos de prueba ni horas concretas de agenda;
+* el documento no menciona agentes, cotizadores, simuladores ni a quien lo consulta;
 * **el documento no menciona en ninguna parte que un dato sea real o ficticio, ni incluye leyendas, cajas, colores, encabezados o secciones que los clasifiquen**;
 * **el documento no incluye una sección que explique qué es el documento, para qué sirve, cómo leerlo, cómo se generó, de dónde provienen los datos, ni su propósito o alcance**.

@@ -1,16 +1,34 @@
 # Objetivo
 
-Quiero que generes un **documento en formato LaTeX (`.tex`)** que represente la información completa de un centro oftalmológico ubicado en la ciudad de **Talca, Chile**.
+Quiero que generes un **documento en formato LaTeX (`.tex`)** que represente la información completa de un **centro de salud que realiza exámenes**, ubicado en Chile, según los parámetros de la sección 0.
 
 El documento combina **datos reales mínimos del centro** con **información completamente ficticia**, siguiendo estrictamente las reglas definidas a continuación.
 
-> **Aviso para quien genera el documento:** las reglas de las secciones 1, 2 y 6 son instrucciones internas. La distinción entre dato real y dato ficticio **no se escribe en el documento**: el `.tex` debe presentar todos los datos como los datos del centro, sin marcar, explicar ni declarar su origen.
+> **Aviso para quien genera el documento:** las reglas de las secciones 0, 1, 2, 6 y 8 son instrucciones internas. La distinción entre dato real y dato ficticio **no se escribe en el documento**: el `.tex` debe presentar todos los datos como los datos del centro, sin marcar, explicar ni declarar su origen.
+
+---
+
+# 0. Parámetros
+
+Los parámetros se toman del mensaje del usuario. Por ejemplo: *"un centro radiológico ubicado en Santiago, Ñuñoa"* o *"un centro oftalmológico en Talca, con estos exámenes: …"*.
+
+| Parámetro | Obligatorio | Ejemplo | Si no se indica |
+|---|---|---|---|
+| Especialidad del centro | Sí | oftalmología, radiología, laboratorio clínico | Pregúntala antes de comenzar |
+| Ciudad | Sí | Talca, Santiago | Pregúntala antes de comenzar |
+| Comuna o sector | No | Ñuñoa | Cualquier comuna de la ciudad |
+| Centro específico | No | nombre de un centro concreto | Elige un centro real de la especialidad en esa ciudad |
+| Exámenes | No | lista de códigos y nombres | Crea 3 exámenes habituales de la especialidad (ver sección 5) |
+
+Si falta un parámetro obligatorio, **pregunta antes de generar**. No supongas la especialidad ni la ciudad.
+
+En el resto de este prompt, "la especialidad", "la ciudad" y "la comuna" se refieren a estos parámetros.
 
 ---
 
 # 1. Investigación web obligatoria
 
-Antes de generar el documento debes realizar una búsqueda en Internet para identificar **un centro oftalmológico real ubicado en Talca, Chile**.
+Antes de generar el documento debes realizar una búsqueda en Internet para identificar **un centro real de la especialidad, ubicado en la ciudad (y en la comuna, si se indicó)**. Si se indicó un centro específico, búscalo a él.
 
 Utiliza fuentes públicas disponibles en la web.
 
@@ -19,6 +37,10 @@ Del centro real solamente puedes reutilizar los siguientes datos:
 1. Nombre del centro.
 2. Dirección.
 3. Teléfono.
+
+El teléfono debe escribirse **exactamente como aparece en la fuente pública**, en formato internacional (por ejemplo, `+56 71 223 2252`), porque se usa para identificar al centro.
+
+Si no encuentras un centro real que cumpla los parámetros, **no generes el documento**: informa que no lo encontraste y sugiere ampliar la comuna o la ciudad. No inventes un centro.
 
 No debes reutilizar ningún otro dato real encontrado en Internet. Si durante la investigación encuentras información real sobre horarios, precios, servicios, convenios, WhatsApp, correos, profesionales, políticas o cualquier otro elemento, **descártala**: no debe aparecer en el documento.
 
@@ -73,6 +95,7 @@ Queda prohibido incluir en el `.tex`:
 * **Esquemas de datos**, listas de campos, tipos de dato o formatos de salida de una cotización.
 * **Casos de prueba**, expectativas o criterios de evaluación.
 * **Horas o fechas concretas de agenda** (por ejemplo, "el próximo cupo es el jueves 12 a las 09:30"). El documento define reglas de horario y anticipación, no cupos disponibles en una fecha determinada.
+* **Referencias a contenido que no existe en el documento**, como "los ejemplos de este documento", "ver anexo" o "como se muestra más abajo", si ese contenido no está.
 
 El documento debe leerse **como una fuente de datos del centro, nada más**: información general, políticas, catálogo de exámenes, reglas de disponibilidad, precios y protocolos de atención.
 
@@ -159,15 +182,14 @@ No utilices datos personales de personas reales como parte del contenido.
 
 # 5. Catálogo de exámenes
 
-Crea exactamente **3 exámenes oftalmológicos convencionales**, usando estos códigos y exámenes:
+### Qué exámenes incluir
 
-| Código | Examen |
-|---|---|
-| OFT-CV-001 | Curvimetría |
-| OFT-GLU-002 | Medición de glaucoma |
-| OFT-FDO-003 | Fondo de ojo |
+* **Si el usuario entregó una lista de exámenes con códigos**, usa exactamente esos exámenes y esos códigos, escritos tal como se entregaron.
+* **Si no la entregó**, crea **3 exámenes habituales de la especialidad**, plausibles para un centro de ese tipo, y asígnales códigos con el formato `PREFIJO-ABREV-NNN`, donde `PREFIJO` son tres letras de la especialidad (por ejemplo, `OFT` para oftalmología o `RAD` para radiología), `ABREV` es una abreviatura del examen y `NNN` es un correlativo (`001`, `002`, `003`). Además, **fuera del `.tex`**, al final de tu respuesta, entrega una tabla con los códigos, nombres comunes y formas coloquiales creados, para incorporarlos al catálogo común.
 
-Los códigos deben escribirse exactamente así. Toda la información específica del centro para cada examen (requisitos, precios, horarios, preparación, etc.) debe ser creada para este documento.
+Toda la información específica del centro para cada examen (requisitos, precios, horarios, preparación, etc.) debe ser creada para este documento.
+
+### Estructura de cada examen
 
 Para cada examen, usa **exactamente los siguientes títulos de subsección, en este orden**: Identificación, Descripción, Requisitos, Atención, Precios, Resultados, Recomendaciones, Conducción y acompañamiento.
 
@@ -188,14 +210,16 @@ Para cada examen, usa **exactamente los siguientes títulos de subsección, en e
 
 ### Requisitos
 
-* Si requiere orden médica.
+* Si requiere orden médica, y si eso cambia según la modalidad de pago.
 * Si requiere ayuno.
 * Si requiere preparación previa.
-* Si requiere suspender o modificar alguna actividad.
-* Consideraciones sobre lentes de contacto.
+* Si requiere suspender o modificar alguna actividad o medicamento.
+* Consideraciones propias de la especialidad (por ejemplo, lentes de contacto en oftalmología; embarazo, implantes metálicos, medio de contraste o claustrofobia en radiología).
 * Si requiere acompañante.
 * Si existe alguna consideración especial para adultos mayores.
 * Otras condiciones relevantes.
+
+Cada requisito debe tener una justificación clínica plausible para ese examen. No agregues requisitos que no tengan sentido para el examen (por ejemplo, ayuno donde no aplica).
 
 ### Atención
 
@@ -245,18 +269,19 @@ Indica explícitamente si:
 * podría recomendarse acompañante;
 * existe alguna condición que modifique esta recomendación.
 
-Al final del catálogo puedes incluir una **tabla resumen comparativa** de los tres exámenes, sin comentarios sobre errores posibles ni sobre cómo interpretarla.
+Al final del catálogo puedes incluir una **tabla resumen comparativa** de los exámenes, sin comentarios sobre errores posibles ni sobre cómo interpretarla.
 
 ---
 
 # 6. Variabilidad de la información (instrucción interna)
 
-No diseñes los tres exámenes utilizando exactamente la misma estructura lógica.
+No diseñes los exámenes utilizando exactamente la misma estructura lógica.
 
 La información debe presentar variabilidad. Por ejemplo:
 
 * un examen puede no requerir orden médica;
-* otro puede requerirla;
+* otro puede requerirla siempre;
+* otro puede requerirla solo según la modalidad de pago;
 * uno puede tener preparación especial;
 * otro puede no requerir preparación;
 * uno puede tener disponibilidad todos los días;
@@ -289,32 +314,66 @@ El texto del PDF compilado debe poder **extraerse sin errores** (copiar y pegar 
 
 * usa `\usepackage[T1]{fontenc}`, `\usepackage{lmodern}` y `\usepackage[utf8]{inputenc}`;
 * incluye `\usepackage{cmap}` antes de `fontenc` y `\pdfgentounicode=1` con `\input{glyphtounicode}`;
-* desactiva las ligaduras tipográficas (por ejemplo, con `\usepackage{microtype}` y `\DisableLigatures{encoding = *, family = *}`), para que palabras como "confirmar" o "firma" no pierdan letras al extraer el texto.
+* desactiva las ligaduras tipográficas (por ejemplo, con `\usepackage{microtype}` y `\DisableLigatures{encoding = *, family = *}`), para que palabras como "confirmar" o "firma" no pierdan letras al extraer el texto;
+* escribe las letras acentuadas y la ñ **directamente como caracteres UTF-8 precompuestos** (á, é, í, ó, ú, ü, ñ). No uses comandos de acento como `\'u` o `\~n`, ni combines una letra con un acento separado.
 
 Evita utilizar paquetes innecesarios. El documento debe compilar correctamente en un entorno LaTeX estándar con `pdflatex`.
 
-Finalmente, guarda el resultado como:
+Guarda el resultado con este nombre, en minúsculas, sin tildes y con guiones bajos:
 
-`centro_oftalmologico_talca_ficticio.tex`
+`centro_<especialidad>_<ciudad>_<comuna>.tex` (omite `<comuna>` si no se indicó).
+
+Por ejemplo: `centro_oftalmologia_talca.tex` o `centro_radiologia_santiago_nunoa.tex`.
 
 ---
 
-# 8. Criterios de calidad
+# 8. Revisión de consistencia antes de entregar (instrucción interna)
+
+Antes de entregar el documento, revísalo completo y corrige todo lo que no cumpla. Esta revisión **no se escribe dentro del documento**.
+
+### Datos repetidos
+
+Todo dato que aparezca en más de una sección debe ser **idéntico** en todas. Revisa en especial:
+
+* precios por modalidad (detalle del examen, políticas y tabla resumen);
+* exigencia de orden médica por examen y por modalidad (sección de órdenes médicas, requisitos, precios y tabla resumen);
+* recomendación u obligación de acompañante (requisitos, conducción y acompañamiento, y tabla resumen);
+* días, horarios y anticipación de cada examen (información general, horarios diferenciados, atención y tabla resumen);
+* duración, plazo de resultados e inclusión de imágenes.
+
+La tabla resumen se construye **al final**, copiando los valores del detalle de cada examen, nunca al revés.
+
+### Coherencia lógica
+
+* Toda justificación que mencione un número debe coincidir con los números del documento (por ejemplo, si una política dice que dos precios difieren en menos de cierto monto, la diferencia real debe cumplirlo).
+* Las condiciones no deben anularse entre sí (por ejemplo, no exigir orden médica para una modalidad que no cubre el examen y se cobra como particular, si el particular no exige orden).
+* El nombre técnico de cada examen debe ser coherente con su descripción y con la técnica real que describe.
+* No debe haber referencias a contenido que no existe en el documento.
+
+### Ortografía
+
+* Todas las palabras llevan sus tildes correctas (por ejemplo, "común", "imágenes", "ningún", "sábados", "recién", "último").
+* No hay palabras repetidas ni errores de tipeo.
+
+---
+
+# 9. Criterios de calidad
 
 Estos criterios se verifican para decidir si el documento está listo. **No deben escribirse dentro del documento.**
 
-* existe un centro oftalmológico real de Talca;
-* nombre, dirección y teléfono provienen de una fuente web pública;
+* los parámetros obligatorios (especialidad y ciudad) fueron indicados por el usuario o preguntados;
+* existe un centro real de la especialidad en la ciudad (y comuna, si se indicó);
+* nombre, dirección y teléfono provienen de una fuente web pública, y el teléfono está escrito tal como aparece en ella;
 * esos son los únicos datos reales utilizados;
 * todo el resto de la información fue creada para este documento;
-* existen exactamente tres exámenes, con los códigos OFT-CV-001, OFT-GLU-002 y OFT-FDO-003;
+* los exámenes son los indicados por el usuario, con sus códigos exactos, o son 3 exámenes habituales de la especialidad con códigos en el formato indicado y entregados en una tabla fuera del `.tex`;
 * cada examen usa los mismos títulos de subsección, en el mismo orden;
-* los tres exámenes contienen información suficiente para una cotización;
+* los exámenes contienen información suficiente para una cotización;
 * existen precios, reglas de disponibilidad, requisitos y recomendaciones;
 * existen políticas;
 * no hay datos personales de personas reales;
-* la información es consistente entre las distintas secciones;
-* el documento compila correctamente y su texto se extrae sin letras perdidas;
+* se cumplió la revisión de consistencia de la sección 8;
+* el documento compila correctamente y su texto se extrae sin letras perdidas ni acentos duplicados;
 * el documento no contiene patrones conversacionales, ejemplos de conversaciones, esquemas de campos, casos de prueba ni horas concretas de agenda;
 * el documento no menciona agentes, cotizadores, simuladores ni a quien lo consulta;
 * **el documento no menciona en ninguna parte que un dato sea real o ficticio, ni incluye leyendas, cajas, colores, encabezados o secciones que los clasifiquen**;

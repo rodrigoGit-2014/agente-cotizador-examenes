@@ -1,0 +1,1112 @@
+% =====================================================================
+%  centro_oftalmologico_talca_ficticio.tex
+%  Información general, políticas, catálogo de exámenes, reglas de
+%  disponibilidad, precios y protocolos de atención.
+%  Compilar con:  pdflatex centro_oftalmologico_talca_ficticio.tex
+%  (dos pasadas, para resolver la tabla de contenido)
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ------------------------------------------------- extraccion de texto
+\usepackage{cmap}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\DisableLigatures{encoding = *, family = *}
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+% ----------------------------------------------------------------- paquetes
+\usepackage[es-nodecimaldot,es-noshorthands,spanish]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+% ----------------------------------------------------------------- colores
+\definecolor{colverde}{HTML}{1B5E20}
+\definecolor{fondoverde}{HTML}{E8F5E9}
+\definecolor{colrojo}{HTML}{B71C1C}
+\definecolor{fondorojo}{HTML}{FDECEA}
+\definecolor{colazul}{HTML}{1A237E}
+\definecolor{fondoazul}{HTML}{E8EAF6}
+\definecolor{fondotabla}{HTML}{ECEFF1}
+\definecolor{headcol}{HTML}{37474F}
+
+% ----------------------------------------------------------------- cajas
+\newsavebox{\boxdatos}
+\newsavebox{\boxdest}
+\newsavebox{\boxnota}
+
+\newenvironment{CajaDatos}
+  {\par\medskip\begin{lrbox}{\boxdatos}%
+   \begin{minipage}{0.92\textwidth}\small}
+  {\end{minipage}\end{lrbox}%
+   \noindent\setlength{\fboxsep}{8pt}\setlength{\fboxrule}{0.8pt}%
+   \fcolorbox{colverde}{fondoverde}{\usebox{\boxdatos}}\par\medskip}
+
+\newenvironment{CajaDestacada}
+  {\par\medskip\begin{lrbox}{\boxdest}%
+   \begin{minipage}{0.92\textwidth}\small}
+  {\end{minipage}\end{lrbox}%
+   \noindent\setlength{\fboxsep}{8pt}\setlength{\fboxrule}{0.8pt}%
+   \fcolorbox{colrojo}{fondorojo}{\usebox{\boxdest}}\par\medskip}
+
+\newenvironment{CajaNota}
+  {\par\medskip\begin{lrbox}{\boxnota}%
+   \begin{minipage}{0.92\textwidth}\small}
+  {\end{minipage}\end{lrbox}%
+   \noindent\setlength{\fboxsep}{8pt}\setlength{\fboxrule}{0.8pt}%
+   \fcolorbox{colazul}{fondoazul}{\usebox{\boxnota}}\par\medskip}
+
+\newcommand{\boxtitle}[1]{\textbf{\color{headcol}#1}\par\vspace{2pt}}
+
+% -------------------------------------------------- atajos de contenido
+\newcommand{\pesos}[1]{\mbox{\$ #1}}
+
+\newlist{campos}{description}{1}
+\setlist[campos]{style=nextline,font=\normalfont\bfseries,
+                  itemsep=3pt,topsep=4pt}
+
+\newlist{hitos}{itemize}{1}
+\setlist[hitos]{label=\textbullet,leftmargin=1.4em,itemsep=2pt,topsep=3pt}
+
+\newlist{planos}{itemize}{1}
+\setlist[planos]{label=\textbullet,leftmargin=1.4em,itemsep=2pt,topsep=3pt}
+
+% ------------------------------------------------------ encabezado y pie
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\color{headcol}Centro Oftalmológico Talca}
+\fancyhead[R]{\footnotesize\color{headcol}%
+  Información, políticas y catálogo de exámenes}
+\fancyfoot[C]{\footnotesize\color{headcol}\thepage}
+
+% =====================================================================
+\begin{document}
+
+% ----------------------------------------------------------------- portada
+\begin{titlepage}
+\centering
+
+\vspace*{3.2cm}
+
+{\Large\bfseries\color{headcol} Centro Oftalmológico}\\[0.4em]
+{\Huge\bfseries\color{headcol} Talca, Chile}
+
+\vspace{1.4cm}
+{\large\color{headcol} Información del centro, políticas, catálogo de
+exámenes,\\ disponibilidad y precios}
+
+\vfill
+{\small\color{headcol} Actualizado el \today}
+\end{titlepage}
+
+% ------------------------------------------------------- tabla de contenido
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{Información general del centro}
+
+\subsection{Identificación}
+\label{sec:ident}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Nombre] Centro Oftalmológico Talca.
+\item[Dirección] 3 Oriente 1608, Talca, Región del Maule, Chile.
+\item[Teléfono] +56 71 223 2252.
+\item[Nombre comercial] Centro Oftalmológico Talca.
+\item[Razón social] Centro Oftalmológico Talca SpA.
+\item[RUT] 77.000.000-0.
+\item[Registro de prestador] PS-0000. Código de registro interno.
+\end{campos}
+\end{CajaDatos}
+
+\subsection{Canales de contacto}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}p{5.0cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Canal} & \textbf{Dato} & \textbf{Uso} \\
+\midrule
+Teléfono & +56 71 223 2252 &
+  Llamada de recepción. Entrega información de valores y horarios. \\
+WhatsApp & +56 9 6123 7788 &
+  Mensajes escritos y envío de la orden médica. Se responde en horario de
+  atención. \\
+Correo & \url{cotizacion@oftalca-centro-demo.example} &
+  Envío de ordenes médicas y solicitud de informes. \\
+Formulario web & \url{cotizacion.oftalca-centro-demo.example} &
+  Solicitud de hora sin llamada. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsection{Horarios y días de atención}
+\label{sec:horarios}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.4cm}p{4.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Bloque} & \textbf{Días} & \textbf{Horas} \\
+\midrule
+Atención general & Lunes a viernes & 08:30 a 13:00 \\
+Tarde & Martes, jueves y viernes & 15:00 a 19:00 \\
+Atención sábado & Sábado & 09:00 a 13:00 \\
+Cerrado & Domingo y feriados & Sin atención \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+El bloque de la tarde existe solo en parte de la semana: los días sin tarde
+(lunes, miércoles y sábado) no tienen horas por la tarde.
+\end{CajaDatos}
+
+\subsection{Horarios diferenciados por examen}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{2.9cm}p{4.0cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Código} & \textbf{Examen} &
+\textbf{Bloque reservado} \\
+\midrule
+OFT-CV-001 & Curvimetría & Lunes a sábado, en horario general. \\
+OFT-GLU-002 & Medición de glaucoma & Solo martes, jueves y viernes, bloques
+  de mañana. \\
+OFT-FDO-003 & Fondo de ojo & Lunes a viernes en mañana, más miércoles por la
+  tarde. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsection{Canales disponibles para consultas}
+
+\begin{CajaDatos}
+\begin{hitos}
+\item \textbf{Teléfono:} canal principal. Entrega valores y horarios en la
+  misma llamada en la mayoría de los casos.
+\item \textbf{WhatsApp:} canal secundario. Entrega los mismos valores, pero
+  la disponibilidad solo se informa si el mensaje llega antes de las 17:00.
+\item \textbf{Correo:} canal para enviar ordenes médicas. No se responde
+  sobre valores por correo.
+\item \textbf{Formulario web:} canal para solicitud de hora. La confirmación
+  llega en un mensaje al WhatsApp registrado.
+\end{hitos}
+\end{CajaDatos}
+
+\subsection{Modalidades de atención}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.0cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Modalidad} & \textbf{Descripción} \\
+\midrule
+Presencial & Toda la atención se realiza en el domicilio del centro, en la
+  dirección indicada en la sección \ref{sec:ident}. Es la uúnica modalidad
+  que realizan los tres exámenes del catálogo. \\
+Telemedicina & Solo para la toma de antecedentes clínicos previos a
+  OFT-GLU-002, en un bloque de 10 minutos. No reemplaza el examen
+  presencial. \\
+Entrega de resultados & El informe se entrega en mano al terminar, o por
+  correo electrónico a petición del paciente. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsection{Anticipación recomendada para solicitar una hora}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.8cm}p{3.4cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Examen} & \textbf{Anticipación} &
+\textbf{Con menos anticipación} \\
+\midrule
+Curvimetría & 24 horas & Se ofrece el mismo día si queda espacio antes de
+  las 11:00. \\
+Medición de glaucoma & 5 días hábiles & El centro informa que no puede
+  garantizar hora y pide volver a llamar. \\
+Fondo de ojo & 3 días hábiles & Se ofrece hora en el mismo bloque de la
+  tarde, si el paciente puede permanecer cuatro horas con visión borrosa. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsection{Condiciones generales de atención}
+
+\begin{CajaDestacada}
+\begin{planos}
+\item El paciente debe presentarse 15 minutos antes de la hora.
+\item La hora se respeta según el orden de llegada a recepción, no según el
+  orden de la agenda. Si el paciente llega tarde, entra en la cola del bloque.
+\item No se realiza ningún examen sin el registro previo en recepción.
+\item El centro no atiende urgencias oftalmológicas. Ante un síntoma reciente
+  de visión borrosa, dolor ocular o pérdida de visión, el paciente debe
+  acudir a un servicio de urgencias.
+\item El personal del centro se identifica con nombre y cargo al iniciar la
+  atención.
+\end{planos}
+\end{CajaDestacada}
+
+\subsection{Política de cancelación}
+
+\begin{CajaDestacada}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.6cm}X@{}}
+\toprule
+\rowcolor{fondorojo}\textbf{Momento de la cancelación} & \textbf{Efecto} \\
+\midrule
+Con más de 48 horas & Sin costo. Se devuelve la hora al sistema. \\
+Entre 24 y 48 horas & Sin costo, pero se registra una cancelación en el
+  historial del paciente. \\
+Con menos de 24 horas & Se cobra el 50 por ciento del valor del examen,
+  porque el bloque queda bloqueado para el resto del día. \\
+No se presenta & Se cobra el 100 por ciento del valor del examen. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDestacada}
+
+\subsection{Política de modificación de hora}
+
+\begin{CajaDestacada}
+\begin{planos}
+\item Una modificación solicitada con más de 24 horas de anticipación no
+  tiene costo.
+\item Una modificación solicitada con menos de 24 horas se rige por la misma
+  regla que la cancelación tardía: 50 por ciento del valor.
+\item El paciente puede modificar su hora \textbf{una sola vez} sin costo.
+\item Si el paciente modifica dos veces, el centro exige confirmar por
+  teléfono antes de aceptar la tercera modificación.
+\item El centro nunca llama para ofrecer una hora distinta. Si la hora
+  original cae, el paciente debe volver a consultar.
+\end{planos}
+\end{CajaDestacada}
+
+\subsection{Condiciones para pacientes que llegan atrasados}
+
+\begin{CajaDestacada}
+\boxtitle{Tolerancia máxima: 15 minutos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}X@{}}
+\toprule
+\rowcolor{fondorojo}\textbf{Atraso} & \textbf{Efecto} \\
+\midrule
+Hasta 15 minutos & Se atiende normalmente, con el tiempo restante del bloque. \\
+Entre 15 y 30 minutos & El examen se realiza, pero puede quedar incompleto:
+  en el caso de OFT-GLU-002 el paciente sale del bloque sin haber hecho la
+  campimetría y debe reagendar solo esa parte. \\
+Mas de 30 minutos & No se realiza el examen. Se aplica la política de
+  no presentación: cobro del 100 por ciento. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDestacada}
+
+\subsection{Documentación requerida}
+
+\begin{CajaDestacada}
+\begin{planos}
+\item \textbf{Toda atención:} documento de identidad del paciente o de su
+  responsable, para el registro en recepción.
+\item \textbf{Todo examen:} cédula vigente o pasaporte vigente. No se acepta
+  otro documento.
+\item \textbf{Examen con orden médica:} la orden médica original, en papel,
+  con firma y timbre del médico. No se acepta una foto en el celular.
+\item \textbf{Paciente menor de 18 años:} cédula del adulto responsable y
+  autorización firmada de ese adulto.
+\end{planos}
+\end{CajaDestacada}
+
+\subsection{Ordenes médicas}
+
+\begin{CajaDestacada}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.4cm}X@{}}
+\toprule
+\rowcolor{fondorojo}\textbf{Regla} & \textbf{Detalle} \\
+\midrule
+Vigencia & La orden médica tiene una vigencia de 90 días desde su fecha de
+  emisión. \\
+Datos mínimos & Debe indicar el examen a realizar, la fecha y el médico
+  firmante. No se acepta una orden de un examen distinto al que el paciente
+  quiere. \\
+Quién la emite & Puede ser cualquier médico habilitado, no necesariamente
+  oftalmólogo. \\
+Sin orden & OFT-CV-001 no la exige. OFT-GLU-002 la exige siempre.
+  OFT-FDO-003 la exige solo si el paciente quiere usar Fonasa o convenio. \\
+Edad del paciente & Si el paciente tiene 70 años o más, la orden puede ser
+  emitida por un médico no especialista. \\
+Envío previo & La orden puede enviarse por correo hasta 24 horas antes de la
+  hora, para evitar la fila. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDestacada}
+
+\subsection{Entrega de resultados}
+
+\begin{CajaDestacada}
+\begin{planos}
+\item Ningun resultado se entrega por teléfono ni por WhatsApp.
+\item El informe se entrega en mano al terminar el examen, en un sobre
+  sellado con el nombre del paciente.
+\item Si el paciente no retira el informe en el momento, queda disponible en
+  recepción por 60 días.
+\item Pasados los 60 días, el informe se elimina y no se puede recuperar:
+  hay que pedir una nueva realización del examen.
+\item Las imagenes digitalizadas se entregan en un pendrive provisto por el
+  paciente, no por el centro.
+\end{planos}
+\end{CajaDestacada}
+
+% =====================================================================
+\section{Políticas y reglas del centro}
+\label{sec:politicas}
+
+\subsection{Política de cotización}
+
+\begin{CajaDatos}
+\boxtitle{Qué información necesita el centro para entregar un valor}
+El centro necesita tres datos, en este orden de importancia:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{0.8cm}p{4.4cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{N} & \textbf{Dato} &
+\textbf{Para qué lo pide} \\
+\midrule
+1 & Qué examen se necesita & Determina el arancel base y si hace falta orden
+  médica. \\
+2 & Qué previsión tiene el paciente & Determina el valor. Sin este dato el
+  centro puede negarse a dar un número. \\
+3 & Si el paciente es adulto mayor & Ajusta la recomendación de acompañante y
+  el bloque horario. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Cuándo necesita conocer la previsión}
+El centro pide la previsión \textbf{siempre antes de dar el valor}, excepto
+en dos casos:
+
+\begin{hitos}
+\item \textbf{Curvimetría:} el centro puede dar el valor particular sin
+  preguntar, porque el arancel particular y el de Fonasa difieren en menos
+  de \pesos{5.000} y el centro prefiere simplificar la llamada. Si el paciente
+  menciona su previsión, el centro lo registra.
+\item \textbf{Pacientes mayores de 70 años:} el centro pregunta la previsión
+  antes que cualquier otra cosa, porque sabe que en la mayoría de los casos
+  es Fonasa.
+\end{hitos}
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Cuándo puede entregar un valor particular}
+El centro entrega el valor particular cuando el paciente dice que es
+particular, que no tiene previsión o que paga de su bolsillo, y también
+cuando el paciente no responde la pregunta sobre previsión. En ese uúltimo
+caso entrega el valor particular y aclara: \emph{ese es el valor particular;
+si tiene Fonasa o Isapre el valor cambia, me confirma y le doy el correcto}.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué ocurre si el paciente no indica su previsión}
+El centro no insiste más de una vez. Si el paciente vuelve a no decir nada,
+entrega el valor particular y marca la cotización como \textbf{particular
+por omisión}. No vuelve a preguntar.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué información puede quedar pendiente de confirmación}
+Cuatro datos pueden quedar como \textbf{no confirmado}:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Dato} & \textbf{Cuándo queda pendiente} \\
+\midrule
+Valor con Isapre & Cuando la isapre exige autorización previa por carta. El
+  centro entrega un rango y la autorización queda pendiente. \\
+Próxima hora & Cuando el centro pide al paciente que vuelva a llamar más
+  tarde para confirmar. \\
+Disponibilidad de sábado & Cuando la consulta se hizo un viernes después de
+  las 16:00 y el sábado no se informa por teléfono. \\
+Costo de cancelación & Cuando el paciente no aclara si es particular o con
+  cobertura, y el valor depende de la modalidad. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsection{Política de disponibilidad}
+\label{sec:disp}
+
+\begin{CajaDatos}
+\boxtitle{Cómo se informa la disponibilidad}
+El centro informa la disponibilidad por el mismo canal en que se hizo la
+consulta. Entrega la fecha y el bloque, no una tabla completa de agenda.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué significa una hora disponible}
+Una hora disponible es un bloque de agenda del examen solicitado, en un día
+en que ese examen opera, dentro de los horarios de la sección
+\ref{sec:horarios} y con la anticipación mínima cumplida. No es una reserva:
+es una referencia que puede ser reasignada en cualquier momento.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Cuánto tiempo se mantiene una hora}
+La hora se mantiene \textbf{48 horas} desde que se informa. Dentro de ese
+plazo, si el paciente decide tomarla, debe confirmar por el canal que elija.
+Pasadas las 48 horas, el centro la libera y puede entregarsela a otro
+paciente, sin aviso.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué ocurre si una hora deja de estar disponible}
+\begin{planos}
+\item Si el paciente ya confirmó y el centro la libera, el centro se
+  compromete a llamar para ofrecer una hora alternativa.
+\item Si el paciente no había confirmado, la hora deja de estar disponible y
+  el paciente debe volver a consultar.
+\item El centro nunca avisa de forma proactiva que perdio una hora.
+\end{planos}
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué información entrega el centro al consultar disponibilidad}
+Al consultar disponibilidad, el centro entrega:
+
+\begin{hitos}
+\item la fecha del bloque disponible;
+\item la hora de inicio y el bloque (mañana o tarde);
+\item la duración estimada del examen;
+\item si el examen requiere orden médica;
+\item el tiempo de anticipación que resta para confirmar.
+\end{hitos}
+Lo que no puede confirmar, lo declara como pendiente.
+\end{CajaDatos}
+
+\subsection{Política de reserva}
+
+\begin{CajaNota}
+Las reservas se confirman solo por teléfono o WhatsApp, en horario de
+atención, y quedan cerradas cuando el centro entrega la confirmación al
+paciente.
+\end{CajaNota}
+
+\begin{CajaDatos}
+\boxtitle{Qué datos solicita el centro para reservar}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Dato} & \textbf{Para qué lo solicita} \\
+\midrule
+Nombre completo del paciente & Emitir la confirmación. \\
+Previsión y número de ficha & Determinar el arancel final. \\
+Orden médica & Validar que el examen se puede realizar. \\
+Canal de contacto elegido & Enviar la confirmación. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{En qué momento solicita el nombre del paciente}
+El centro solicita el nombre \textbf{después} de acordar el examen, el valor
+y la hora, en el momento en que el paciente decide tomar esa hora.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué datos de contacto solicita}
+WhatsApp o teléfono, uno de los dos, para confirmar. Nunca correo y teléfono
+a la vez. El RUT se solicita recien en recepción, el día del examen.
+\end{CajaDatos}
+
+\begin{CajaDatos}
+\boxtitle{Qué información es necesaria para confirmar una hora}
+\begin{hitos}
+\item Examen y fecha u hora acordados.
+\item Confirmación del paciente de que toma esa hora.
+\item Previsión declarada.
+\item Orden médica vigente, si el examen la exige.
+\end{hitos}
+Con esos cuatro elementos la reserva queda completa. Sin el primero no hay
+reserva.
+\end{CajaDatos}
+
+\subsection{Política de datos personales}
+\label{sec:datos}
+
+\begin{CajaDestacada}
+\boxtitle{Durante una simple cotización}
+\begin{planos}
+\item \textbf{No se requiere RUT.} El arancel depende del examen y de la
+  modalidad, no de la identidad de la persona.
+\item \textbf{No se requieren datos personales sensibles.} Nada de
+  diagnósticos, recetas, antecedentes clínicos ni información de salud.
+\item \textbf{No se solicita información innecesaria.} Nombre, domicilio y
+  correo no son necesarios para saber si el centro hace el examen y cuanto
+  cuesta.
+\item \textbf{Los datos personales solo se solicitan en la etapa de
+  reserva.}
+\item \textbf{Los ejemplos de este documento no contienen datos de
+  personas.}
+\end{planos}
+\end{CajaDestacada}
+
+% =====================================================================
+\section{Catálogo de exámenes}
+\label{sec:catalogo}
+
+% ---------------------------------------------------------- examen 1
+\subsection{Curvimetría con optometría clínica}
+
+\subsubsection{Identificación}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Código] OFT-CV-001
+\item[Nombre técnico] Curvimetría con optometría clínica y prueba de
+  estereopsis.
+\item[Nombre comun] Curvimetría.
+\item[Formas coloquiales] curvimetría; examen de la vista; medir la vista;
+  examen de optometría; chequeo de los ojos; examen para lentes; revisión de
+  la graduación.
+\item[Categoría] óptica y refracción.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Descripción}
+
+\begin{CajaDatos}
+Es un examen no invasivo que mide el poder de refracción de ambos ojos y
+evalua como trabajan juntos. \textbf{Para qué sirve:} para saber cuantas
+dioptrías necesita la persona y si existen diferencias entre un ojo y otro.
+\textbf{Permite obtener:} graduación por ojo, agudeza visual de lejos y de
+cerca, visión en relieve y capacidad de fusión binocular. Se solicita de
+forma habitual cuando el paciente quiere renovar lentes por primera vez o
+cada dos años, cuando nota cambios de visión, o en los controles escolares.
+\end{CajaDatos}
+
+\subsubsection{Requisitos}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.2cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Requisito} & \textbf{Condición} \\
+\midrule
+Orden médica & \textbf{No requiere.} Se puede pedir sin ningún documento
+  médico. \\
+Ayuno & \textbf{No requiere.} \\
+Preparación previa & \textbf{Ninguna.} No hay gotas, no hay dilatación, no
+  hay que ajustar nada. \\
+Actividades a suspender o modificar & \textbf{Ninguna.} Se puede venir
+  trabajando, conduciendo o haciendo deporte. \\
+Lentes de contacto & \textbf{Sin restricción.} Se puede venir con lentes de
+  contacto puestos; el optometrista los retira durante la medición. \\
+Acompañante & \textbf{No se requiere.} \\
+Adultos mayores & \textbf{Sin requisito adicional.} Se ofrece silla con
+  respaldo y se hacen pausas cada 10 minutos. \\
+Otras condiciones & En menores de 8 años se requiere la presencia de un
+  adulto responsable durante todo el examen. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Atención}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Duración aproximada] 30 a 40 minutos.
+\item[Modalidad] Presencial unicamente.
+\item[Horario disponible] Lunes a viernes 08:30 a 13:00; martes, jueves y
+  viernes 15:00 a 19:00; sábado 09:00 a 13:00.
+\item[Días disponibles] Lunes a sábado (el sábado solo por la mañana).
+\item[Anticipación requerida] 24 horas.
+\item[Capacidad diaria] 14 atenciones por día.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Precios}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.0cm}p{3.4cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Modalidad} & \textbf{Valor} &
+\textbf{Condición} \\
+\midrule
+Particular & \pesos{25.000} & Valor de lista. \\
+Fonasa & \pesos{12.500} & Sin orden médica. Con orden médica el valor baja a
+  \pesos{9.800}. \\
+Isapre & Sin valor cerrado & El centro no puede dar un valor sin ver la
+  carta del contrato. Informa un rango de referencia entre \pesos{14.000} y
+  \pesos{19.000} y pide autorización previa. \\
+Convenio PSVM & \pesos{18.000} & Valor uúnico, sin autorización previa. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Resultados}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Tipo de resultado] Informe de optometría con la graduación.
+\item[Formato] Papel original firmado por el optometrista, más copia en PDF
+  entregada en la memoria USB del paciente, si este trae una.
+\item[Plazo de entrega] Inmediato: 30 minutos después del examen, en
+  recepción.
+\item[Incluye informe] Sí.
+\item[Incluye imagenes] No.
+\item[Recomendación posterior] Si la graduación cambia más de 1.00 dioptría
+  respecto de la receta anterior, el optometrista recomienda renovar lentes y
+  controlar en 6 meses.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Recomendaciones}
+
+\begin{CajaDatos}
+\begin{planos}
+\item \textbf{Antes:} llegar con la uúltima receta de lentes a la mano, si se
+  tiene. No es obligatorio. Si no hay recetas previas, se registra que es la
+  primera medición en el centro.
+\item \textbf{Durante:} el examen no molesta. Se le pide al paciente que mire
+  a una luz lejana y luego a una cercana. Puede parpadear libremente.
+\item \textbf{Después:} no hay restricciones. Se puede volver al trabajo o
+  seguir conduciendo normalmente.
+\item \textbf{Consultar previamente:} antes del examen, si el paciente tiene
+  glaucoma avanzado, cirugía ocular reciente (menos de 6 semanas),
+  desprendimiento de retina previo, o una lesión corneal sin resolver.
+\end{planos}
+\end{CajaDatos}
+
+\subsubsection{Conducción y acompañamiento}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Pregunta} & \textbf{Respuesta} \\
+\midrule
+Puede conducir después? & \textbf{Sí.} No hay dilatación, no hay sedación y
+  no hay visión borrosa. \\
+Se recomienda acompañante? & \textbf{No.} \\
+Alguna condición que lo modifique? & \textbf{Si el paciente es menor de 14
+  años} o es su primera medición, el centro sugiere que venga un adulto
+  responsable, pero no lo exige. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+% ---------------------------------------------------------- examen 2
+\subsection{Medición de glaucoma}
+
+\subsubsection{Identificación}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Código] OFT-GLU-002
+\item[Nombre técnico] Tonometría no contactil (Goldmann) y campimetría visual
+  computarizada.
+\item[Nombre comun] Medición de glaucoma.
+\item[Formas coloquiales] examen de glaucoma; medición de glaucoma; la
+  presión del ojo; examen de la presión; campimetría; campo visual; examen de
+  los nervios del ojo; revisión de glaucoma.
+\item[Categoría] Neuro-oftalmología y glaucoma.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Descripción}
+
+\begin{CajaDatos}
+Es un conjunto de dos mediciones. La primera, la tonometría, mide la presión
+intraocular sin tocar el ojo, con un soplo de aire. La segunda, la
+campimetría, mide el campo visual: que parte del campo ve el paciente y que
+partes tiene perdidas, y lo representa en una rejilla. \textbf{Para que
+sirve:} para detectar y seguir el glaucoma, que es la enfermedad que daña el
+nervio óptico sin que el paciente note nada al principio. \textbf{Permite
+obtener:} presión intraocular por ojo, umbral de sensibilidad, campimetría de
+ambos ojos y un índice de daño del nervio óptico. Se solicita cuando hay
+antecedentes familiares, cuando se sospecha glaucoma, en los controles de
+pacientes ya diagnosticados, y a partir de los 40 años en personas con
+factores de riesgo.
+\end{CajaDatos}
+
+\subsubsection{Requisitos}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.2cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Requisito} & \textbf{Condición} \\
+\midrule
+Orden médica & \textbf{Sí, siempre.} Orden vigente de un médico que indique
+  medición de glaucoma o campimetría. Sin orden, el examen no se realiza bajo
+  ningún supuesto. \\
+Ayuno & \textbf{No requiere.} Se puede comer normalmente antes. \\
+Preparación previa & \textbf{Sí, y es la más exigente del catálogo.}
+  \begin{itemize}[label=\textbullet,leftmargin=1.1em,itemsep=1pt,topsep=2pt]
+  \item Suspender lentes de contacto blandos 5 días antes.
+  \item Suspender lentes rigidos o gas permeables 21 días antes.
+  \item No usar gotas dilatadoras en las 48 horas previas.
+  \item Traer una lista de los medicamentos que toma.
+  \end{itemize} \\
+Actividades a suspender o modificar & \textbf{No hay que suspender
+  actividades.} Se puede venir trabajando. Solo se pide que la uúltima hora
+  del examen se haga en silencio. \\
+Lentes de contacto & \textbf{Prohibidos durante el examen} y durante los 5
+  días previos. El paciente debe venir con anteojos. \\
+Acompañante & \textbf{No obligatorio.} Se recomienda, por comodidad, si el
+  paciente tiene 80 años o más, o si le cuesta mantener el silencio
+  prolongado que exige la campimetría. \\
+Adultos mayores & Se recomienda pedir hora en el primer bloque de la mañana
+  (08:30 a 09:30), porque la campimetría exige mantener los ojos fijos
+  durante varios minutos y la energía suele estar mejor en la mañana. El
+  acompañante puede esperar en la sala de espera, no en la cámara. \\
+Otras condiciones & Dificultad para distinguir bien de cerca o glaucoma en
+  un ojo uúnico deben informarse al llegar. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Atención}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Duración aproximada] 80 a 100 minutos (ambas mediciones, ambos ojos, en
+  un mismo bloque).
+\item[Modalidad] Presencial. Incluye una entrevista clínica de 10 minutos al
+  inicio, que puede hacerse por telemedicina con 24 horas de anticipación.
+\item[Horario disponible] Martes, jueves y viernes, 08:30 a 13:00.
+\item[Días disponibles] \textbf{Solo martes, jueves y viernes.} No hay
+  atenciones los lunes, miércoles, sabados ni domingos.
+\item[Anticipación requerida] 5 días hábiles. Con menos anticipación, el
+  centro no garantiza hora.
+\item[Capacidad diaria] 6 pacientes por día, porque cada bloque de cámara
+  ocupa 90 minutos.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Precios}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.0cm}p{3.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Modalidad} & \textbf{Valor} &
+\textbf{Condición} \\
+\midrule
+Particular & \pesos{72.000} & Valor de lista, sin autorización. \\
+Fonasa & \pesos{45.000} & Con orden médica vigente, pagada en el acto. \\
+Isapre & \pesos{58.000} referencial & \textbf{Solo referencial.} El valor
+  depende de la carta de cobertura y de la autorización previa de la isapre,
+  que puede demorar de 3 a 10 días hábiles. Si la isapre rechaza, se cobra el
+  valor particular o Fonasa, según corresponda. \\
+Convenio PSVM & \pesos{62.000} & Valor uúnico sin autorización. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Resultados}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Tipo de resultado] Informe con tonometría, curvas de campimetría e
+  índice de glaucoma.
+\item[Formato] Informe en papel con curvas gráficas, más copia en PDF enviada
+  al correo a petición del paciente.
+\item[Plazo de entrega] 3 días hábiles desde la realización del examen.
+\item[Incluye informe] Si, obligatorio.
+\item[Incluye imagenes] Sí. Incluye curvas de campimetría en PDF y una captura
+  del campo visual. No incluye fotografías del fondo del ojo: esas son de
+  otro examen.
+\item[Recomendación posterior] Si el índice de glaucoma supera el rango de
+  referencia, el informe recomienda una consulta con oftalmólogo antes de 30
+  días.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Recomendaciones}
+
+\begin{CajaDatos}
+\begin{planos}
+\item \textbf{Antes:} llegar 20 minutos antes (más que en los otros exámenes,
+  porque hay entrevista). Traer la lista de medicamentos y los anteojos.
+  Haber comido normalmente. No suspender las gotas habituales, salvo las
+  dilatadoras.
+\item \textbf{Durante:} el examen es indoloro. La campimetría pide mantener
+  la mirada fija en un punto central mientras se registra automáticamente lo
+  que ve el paciente; el paciente no debe mover la cabeza ni parpadear de
+  forma agresiva. Si se marea, puede pedir una pausa de 5 minutos sin costo.
+\item \textbf{Después:} puede hacer todo lo que quiera. No hay visión
+  borrosa ni dilatación.
+\item \textbf{Consultar previamente:} si el paciente tiene glaucoma ya
+  diagnosticado y está recién iniciando tratamiento, si fue operado del ojo
+  en los uúltimos 30 días, si tiene una inflamación activa del ojo, o si toma
+  corticoides orales de forma crónica.
+\end{planos}
+\end{CajaDatos}
+
+\subsubsection{Conducción y acompañamiento}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Pregunta} & \textbf{Respuesta} \\
+\midrule
+Puede conducir después? & \textbf{Sí.} Este examen no utiliza dilatación ni
+  sedación. \\
+Se recomienda acompañante? & \textbf{Sugerido, no obligatorio}, para pacientes
+  de 80 años o más, o con dificultad para el silencio prolongado de la
+  campimetría. \\
+Alguna condición que lo modifique? & Ninguna. La recomendación de acompañante
+  no cambia según la previsión ni según el resultado. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+% ---------------------------------------------------------- examen 3
+\subsection{Fondo de ojo}
+
+\subsubsection{Identificación}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Código] OFT-FDO-003
+\item[Nombre técnico] Fundoscopia con oftalmoscopio indirecto y dilatación
+  pupilar.
+\item[Nombre comun] Fondo de ojo.
+\item[Formas coloquiales] fondo de ojo; examen del fondo de ojo; examen de la
+  retina; revisión de la retina; mirar la retina; examen del nervio óptico;
+  foto del fondo del ojo.
+\item[Categoría] Retina y fondo de ojo.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Descripción}
+
+\begin{CajaDatos}
+Es el examen en el que se mira el interior del ojo con un oftalmoscopio
+indirecto, previa dilatación de la pupila. \textbf{Para qué sirve:} para ver
+la retina, el disco del nervio óptico y la córnea, y detectar retinopatías,
+degeneraciones, hemorragias o signos de hipertensión. \textbf{Permite
+obtener:} un mapa del fondo de ojo, el estado del nervio óptico y de la
+retina, y una fotografía digitalizada de referencia. Se solicita en los
+controles de diabetes (incluida la diabetes gestacional), en los controles de
+hipertensión, en pacientes que usan corticoides de forma crónica, o cuando
+hay una pérdida de visión que no se explica por la graduación.
+\end{CajaDatos}
+
+\subsubsection{Requisitos}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.2cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Requisito} & \textbf{Condición} \\
+\midrule
+Orden médica & \textbf{Depende de la modalidad de pago.} Con Fonasa o
+  convenio: obligatoria. Con Isapre: obligatoria y con autorización previa.
+  \textbf{A particular: no se exige.} \\
+Ayuno & \textbf{Sí exige ayuno de 6 horas.} En ayunas se evita que el reflejo
+  del estómago altere la medida asociada al examen. \\
+Preparación previa & \textbf{Sí.}
+  \begin{itemize}[label=\textbullet,leftmargin=1.1em,itemsep=1pt,topsep=2pt]
+  \item Ayuno de 6 horas, solo agua.
+  \item Suspender las gotas que contengan atropina o fenilefrina al menos
+    48 horas antes, solo si fueron indicadas por un especialista.
+  \item Informar con anticipación si el paciente tiene glaucoma y si hay
+    alergia al fármaco dilatador que usa el centro.
+  \end{itemize} \\
+Actividades a suspender o modificar & \textbf{Sí.} El paciente no debe
+  conducir, no debe subir escaleras sin ayuda y no debe operar maquinaria
+  durante las 4 a 6 horas posteriores, porque la pupila queda dilatada. \\
+Lentes de contacto & \textbf{Se deben suspender 24 horas antes.} Durante el
+  examen y después de el hay que usar anteojos. \\
+Acompañante & \textbf{Sí, recomendado de forma expresa.} No por el examen en
+  si, sino por las 4 a 6 horas de visión borrosa posteriores. Si el paciente
+  viene solo, el centro le pide que vuelva a casa en un medio de transporte
+  público o en un taxi. \\
+Adultos mayores & \textbf{Acompañante obligatorio en la práctica.} Por el
+  riesgo de caidas al subir o bajar escalones con visión borrosa y por el
+  riesgo de desorientación. Si no hay acompañante, el centro prioriza la
+  primera hora de la mañana. \\
+Otras condiciones & En caso de glaucoma de anángulo cerrado, el centro exige
+  una carta del oftalmólogo tratante antes de dilatar la pupila. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Atención}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Duración aproximada] 25 a 30 minutos en la cámara, más 30 a 45 minutos
+  de visión borrosa posterior que el paciente pasa sentado en recepción.
+\item[Modalidad] Presencial.
+\item[Horario disponible] Lunes a viernes 08:30 a 13:00; además miércoles
+  15:00 a 19:00.
+\item[Días disponibles] Lunes a viernes, más el miércoles por la tarde.
+\item[Anticipación requerida] 3 días hábiles.
+\item[Capacidad diaria] 12 atenciones por día, pero solo 6 después de las
+  15:00 (solo el miércoles).
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Precios}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.0cm}p{3.4cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Modalidad} & \textbf{Valor} &
+\textbf{Condición} \\
+\midrule
+Particular & \pesos{34.000} & Sin necesidad de orden médica. \\
+Fonasa & \pesos{19.500} & \textbf{Requiere orden médica.} Sin orden médica se
+  cobra el valor particular de \pesos{34.000}. \\
+Isapre & \pesos{21.000} & Requiere orden médica y autorización previa por
+  carta. La autorización puede demorar de 3 a 10 días hábiles. \\
+Convenio PSVM & No cubierto & El convenio no incluye fondo de ojo. Si el
+  paciente quiere usarlo, se le cobra el valor particular de \pesos{34.000},
+  y se le informa antes de agendar. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\subsubsection{Resultados}
+
+\begin{CajaDatos}
+\begin{campos}
+\item[Tipo de resultado] Informe de fondo de ojo con descripción de retina,
+  nervio óptico y córnea, más una fotografía digitalizada.
+\item[Formato] Informe en papel firmado por el oftalmólogo, una impresión en
+  color de la fotografía, y el archivo JPG en un pendrive del paciente.
+\item[Plazo de entrega] 2 días hábiles. La fotografía se entrega el mismo
+  día; el informe escrito, dos días después.
+\item[Incluye informe] Sí.
+\item[Incluye imagenes] Sí. Una fotografía por ojo, más una por sector si el
+  oftalmólogo lo indica.
+\item[Recomendación posterior] Si el informe detecta una lesión sospechosa, la
+  recomendación es control con oftalmólogo en un plazo de 30 días, no antes.
+\end{campos}
+\end{CajaDatos}
+
+\subsubsection{Recomendaciones}
+
+\begin{CajaDatos}
+\begin{planos}
+\item \textbf{Antes:} ayunar 6 horas. Traer anteojos, porque el paciente va a
+  salir con visión borrosa y no puede usar lentes de contacto. Venir
+  acompañado. Si usa lentes de contacto, dejarlos en casa desde la noche
+  anterior. Informar si tiene glaucoma o alergias farmacéuticas.
+\item \textbf{Durante:} se instilan gotas dilatadoras en cada ojo, lo que
+  produce un ardor breve y hace ver borroso. El examen es indoloro. El
+  paciente ve una luz brillante y no puede enfocar durante 10 minutos. Puede
+  parpadear normalmente.
+\item \textbf{Después:} 4 a 6 horas de visión borrosa y sensibilidad a la
+  luz. El centro sugiere anteojos de sol. Conviene permanecer en el centro
+  unos 30 minutos antes de salir. Puede comer y beber con normalidad.
+\item \textbf{Consultar previamente:} si el paciente tiene glaucoma de anángulo
+  cerrado, si fue operado de cataratas en los uúltimos 30 días, si presenta un
+  ojo muy rojo o con dolor, si tiene retinopatía diabética severa
+  diagnosticada, o si tiene menos de 6 meses de cirugía ocular.
+\end{planos}
+\end{CajaDatos}
+
+\subsubsection{Conducción y acompañamiento}
+
+\begin{CajaDatos}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{5.6cm}X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Pregunta} & \textbf{Respuesta} \\
+\midrule
+Puede conducir después? & \textbf{No puede conducir} al menos 4 horas, y
+  hasta 6 si la pupila responde lento. \\
+Se recomienda acompañante? & \textbf{Sí, de forma expresa y por defecto.} La
+  recomendación aplica a todos los pacientes, sin importar la edad ni la
+  previsión. \\
+Alguna condición que lo modifique? & La recomendación es más estricta en
+  pacientes mayores de 70 años, en diabéticos y en personas con problemas de
+  equilibrio: en esos casos el acompañante se declara obligatorio y no se
+  acepta al paciente sin el. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+% ------------------------------------------------- resumen comparativo
+\subsection{Resumen comparativo}
+
+\begin{CajaDatos}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}p{3.7cm}X X X@{}}
+\toprule
+\rowcolor{fondotabla}\textbf{Criterio} & \textbf{OFT-CV-001} &
+\textbf{OFT-GLU-002} & \textbf{OFT-FDO-003} \\
+\midrule
+Examen & Curvimetría & Medición de glaucoma & Fondo de ojo \\
+Orden médica & No & Siempre & Según modalidad \\
+Ayuno & No & No & Sí, 6 horas \\
+Preparación previa & Ninguna & 5 a 21 días & 24 h más ayuno \\
+Lentes de contacto & Sin restricción & Prohibidos 5 a 21 días &
+  Suspender 24 h \\
+Acompañante & No & Sugerido si 80 o más & Obligatorio \\
+Puede conducir & Sí & Sí & No, 4 a 6 h \\
+Duración & 30 a 40 min & 80 a 100 min & 25 a 30 min \\
+Días & L a sábado & Mar, jue y vie & L a vie, mie tarde \\
+Anticipación & 24 h & 5 días hábiles & 3 días hábiles \\
+Capacidad diaria & 14 & 6 & 12 (6 por tarde) \\
+Particular & \pesos{25.000} & \pesos{72.000} & \pesos{34.000} \\
+Fonasa & \pesos{12.500} & \pesos{45.000} & \pesos{19.500} \\
+Isapre & Rango sin valor cerrado & Referencial \pesos{58.000} &
+  \pesos{21.000} con autorización \\
+Convenio PSVM & \pesos{18.000} & \pesos{62.000} & No cubierto \\
+Plazo de resultado & Inmediato & 3 días hábiles & 2 días hábiles \\
+Incluye imágenes & No & Sí, curvas & Sí, fotografías \\
+Informe & Sí & Sí, obligatorio & Sí \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{CajaDatos}
+
+\end{document}

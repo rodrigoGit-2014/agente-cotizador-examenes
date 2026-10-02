@@ -1,0 +1,221 @@
+{
+  "proyecto": "{{PROJECT_DIR}}",
+  "descripcion": "Plan incremental de {{PROJECT_NAME}}. Un paso por ejecucion. Estados validos: 'pendiente' | 'hecho'. La especificacion completa de cada integracion esta en opencode/agents/implementator.md. {{PLAN_NOTES}}",
+  "estados_validos": ["pendiente", "hecho"],
+  "pasos": [
+    {
+      "id": "01-estructura-base",
+      "nombre": "Crear el proyecto y las carpetas",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": [],
+      "descripcion": "Esqueleto del proyecto. Sin grafo todavia: solo estructura, configuracion y estado compartido.",
+      "entregables": [
+        "{{PROJECT_DIR}} con las carpetas nodes/ tools/ agents/ services/ prompts/ mcp/ {{OUTPUT_DIR}}",
+        "config.py que lee el .env de la raiz ({{LLM_API_KEY_ENV}}, {{LLM_MODEL_ENV}}, {{MCP_URL_ENV}}) y es el unico archivo que toca os.environ",
+        "state.py con el TypedDict del estado compartido: input del usuario, rama elegida, resultados parciales de cada rama, respuesta final y traza",
+        "requirements.txt con las dependencias del proyecto: LangGraph, LangChain, el paquete del LLM, el cliente del MCP, el cliente HTTP y las del archivo de salida",
+        ".env.example con las variables del proyecto sin valores reales",
+        "README.md con instalacion y ejecucion",
+        ".venv creado con el interprete del sistema operativo detectado"
+      ],
+      "verificacion": [
+        "El .venv existe y las dependencias de requirements.txt instalan sin error",
+        "python -c 'import config' funciona y devuelve la configuracion",
+        "El .env.example lista las variables del proyecto y no contiene valores reales"
+      ]
+    },
+    {
+      "id": "02-grafo-minimo",
+      "nombre": "Primer grafo: router + rama conversacional",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["01-estructura-base"],
+      "descripcion": "El grafo mas pequeno que ya se puede ejecutar. El router clasifica en las {{N_BRANCHES}} etiquetas finales desde el principio, pero solo la rama conversacional esta implementada: las demas van a un nodo temporal 'pendiente_implementacion' que devuelve un aviso y sigue a consolidacion. Asi el grafo es ejecutable en todo momento.",
+      "entregables": [
+        "nodes/router.py con salida estructurada (with_structured_output) sobre las {{N_BRANCHES}} etiquetas del router. Si la clasificacion falla, cae a la rama conversacional",
+        "nodes/conversacional.py",
+        "nodes/pendiente_implementacion.py (temporal, se retira en el paso 07)",
+        "nodes/consolidacion.py que redacta la respuesta final con el LLM",
+        "prompts/router_prompt.py, prompts/conversacional_prompt.py, prompts/consolidacion_prompt.py",
+        "main.py con el StateGraph completo START -> router -> (arista condicional a las ramas) -> consolidacion -> END, el grafo expuesto como simbolo importable, y el bucle de consola dentro de if __name__ == '__main__'"
+      ],
+      "verificacion": [
+        "El grafo compila y se importa desde main.py sin lanzar el bucle de consola",
+        "Una pregunta conversacional recorre router -> conversacional -> consolidacion y responde",
+        "Una pregunta de otra rama cae en pendiente_implementacion y aun asi devuelve una respuesta, sin romper",
+        "Ninguna rama va directo a END: todas pasan por consolidacion"
+      ]
+    },
+    {
+      "id": "03-modo-debug",
+      "nombre": "Trazas y modo debug",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["02-grafo-minimo"],
+      "descripcion": "Se hace pronto, antes de anadir integraciones, porque es la herramienta con la que se depuran todos los pasos siguientes.",
+      "entregables": [
+        "Activacion por variable de entorno {{DEBUG_ENV_VAR}}=1 o por flag {{DEBUG_FLAG}}",
+        "Cada nodo imprime por stderr al entrar, con prefijo identificable",
+        "La decision del router queda trazada",
+        "El estado acumula la secuencia de nodos recorridos, para poder leerla despues desde codigo",
+        "Tiempo por nodo"
+      ],
+      "verificacion": [
+        "Con {{DEBUG_ENV_VAR}}=1 se ve la traza completa de una pregunta conversacional",
+        "Sin la variable de debug la salida queda limpia",
+        "La traza permite responder por que integraciones paso una respuesta concreta"
+      ]
+    },
+    {
+      "id": "04-integracion-api",
+      "nombre": "{{INTEGRATION_API_NOMBRE}}",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["03-modo-debug"],
+      "descripcion": "Implementa las ramas que consultan la API REST. Si el proyecto no usa API REST, elimina este paso.",
+      "entregables": [
+        "services/ con el cliente de {{API_NAME}} ({{API_ENDPOINTS}}), con timeout y manejo de error de red",
+        "El nodo o la herramienta extraen de la pregunta del usuario lo necesario para consultar",
+        "nodes/ con el nodo de la rama correspondiente",
+        "prompts/ con el prompt de ese nodo",
+        "Las ramas que usan la API dejan de apuntar a pendiente_implementacion y apuntan al nodo real"
+      ],
+      "verificacion": [
+        "Una pregunta representativa de la rama recorre router -> nodo de la rama -> consolidacion",
+        "La traza en modo debug muestra la llamada a la API con sus argumentos",
+        "Una consulta sin resultados devuelve una respuesta razonable en vez de una excepcion",
+        "Un fallo de red no tumba el grafo"
+      ]
+    },
+    {
+      "id": "05-integracion-mcp",
+      "nombre": "{{INTEGRATION_MCP_NOMBRE}}",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["04-integracion-api"],
+      "descripcion": "Implementa las ramas que consultan el MCP. Leer la seccion MCP de implementator.md antes de empezar: el import y el transporte estan fijados ahi y no se improvisan. Si el proyecto no usa MCP, elimina este paso.",
+      "entregables": [
+        "mcp/client.py usando {{MCP_PACKAGE}} con transporte {{MCP_TRANSPORT}} y la URL de {{MCP_URL_ENV}}",
+        "Carga de herramientas desde un contexto asincrono",
+        "nodes/ con el nodo que usa las tools del MCP, empezando por {{MCP_DISCOVERY_STEP}} para descubrir los recursos disponibles",
+        "prompts/ con el prompt de ese nodo",
+        "Las ramas que usan el MCP dejan de apuntar a pendiente_implementacion y apuntan al nodo real"
+      ],
+      "verificacion": [
+        "El cliente conecta y las herramientas del servidor se cargan",
+        "Una pregunta representativa de la rama recorre router -> nodo de la rama -> consolidacion",
+        "La traza en modo debug muestra que herramientas MCP se llamaron y con que argumentos",
+        "No aparece ningun transporte ni import distinto de los fijados en implementator.md"
+      ]
+    },
+    {
+      "id": "06-integracion-salida",
+      "nombre": "{{INTEGRATION_SALIDA_NOMBRE}}",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["05-integracion-mcp"],
+      "descripcion": "Implementa la rama de salida, que consulta las integraciones que necesite y genera un archivo. Si el proyecto no genera archivos, elimina este paso.",
+      "entregables": [
+        "nodes/ con el nodo de la rama de salida, que consulta las integraciones antes de construir el archivo",
+        "tools/ con la escritura del archivo en {{OUTPUT_DIR}}, creando el directorio si no existe",
+        "prompts/ con el prompt de ese nodo",
+        "La respuesta al usuario incluye la ruta del archivo generado",
+        "La rama de salida deja de apuntar a pendiente_implementacion y apunta al nodo real"
+      ],
+      "verificacion": [
+        "Una pregunta representativa de la rama genera un archivo en {{OUTPUT_DIR}}",
+        "El archivo se puede abrir y contiene una estructura coherente con {{OUTPUT_ARTIFACT}}",
+        "La traza muestra que se consultaron las integraciones necesarias"
+      ]
+    },
+    {
+      "id": "07-retirar-placeholder",
+      "nombre": "Retirar el nodo temporal y cerrar el grafo",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["06-integracion-salida"],
+      "descripcion": "Todas las ramas ya existen: el nodo pendiente_implementacion sobra.",
+      "entregables": [
+        "Eliminado nodes/pendiente_implementacion.py y su registro en el grafo",
+        "La arista condicional del router mapea todas las etiquetas a sus nodos reales",
+        "Sin imports ni referencias huerfanas"
+      ],
+      "verificacion": [
+        "Todas las etiquetas del router tienen destino real y todas convergen en consolidacion",
+        "grep de 'pendiente_implementacion' no devuelve nada",
+        "Una pregunta de cada rama funciona de extremo a extremo"
+      ]
+    },
+    {
+      "id": "08-robustez",
+      "nombre": "Casos limite y manejo de errores",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["07-retirar-placeholder"],
+      "descripcion": "Endurecer el agente antes de medirlo con el banco de preguntas.",
+      "entregables": [
+        "Fallo de red o timeout en las integraciones: mensaje util al usuario, sin traceback crudo, sin tumbar el grafo",
+        "Respuesta vacia de una integracion: el nodo de consolidacion lo dice en vez de inventar datos",
+        "Preguntas fuera de dominio van a la rama conversacional y no fabrican informacion",
+        "Entrada vacia o de una sola palabra no rompe el router",
+        "Busquedas sin tildes y con faltas de ortografia funcionan"
+      ],
+      "verificacion": [
+        "Con una integracion apuntando a un destino invalido, el agente responde con un mensaje claro en vez de una excepcion",
+        "Una pregunta fuera de dominio no devuelve datos inventados",
+        "Una entrada vacia se maneja sin excepcion"
+      ]
+    },
+    {
+      "id": "09-documentacion",
+      "nombre": "README y documentacion final",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["08-robustez"],
+      "descripcion": "Cerrar la documentacion con el proyecto ya terminado.",
+      "entregables": [
+        "README.md con: explicacion del flujo, diagrama de las {{N_BRANCHES}} ramas, instalacion por sistema operativo, ejecucion, modo debug y descripcion de las integraciones",
+        ".env.example verificado contra lo que config.py lee de verdad",
+        "requirements.txt verificado contra lo que se importa de verdad"
+      ],
+      "verificacion": [
+        "Siguiendo solo el README, el proyecto se instala y arranca desde cero",
+        "Toda variable que config.py lee esta en .env.example y viceversa",
+        "Todo paquete importado esta en requirements.txt"
+      ]
+    },
+    {
+      "id": "10-validacion-preguntas",
+      "nombre": "Banco de {{VALIDATION_SIZE}} preguntas y harness de validacion",
+      "estado": "pendiente",
+      "agente": "validator",
+      "depende_de": ["09-documentacion"],
+      "descripcion": "Lo ejecuta el agente validator, no el implementator. Detalle completo en opencode/agents/validator.md.",
+      "entregables": [
+        "{{PROJECT_DIR}}validacion/preguntas.xlsx con {{VALIDATION_SIZE}} preguntas repartidas {{VALIDATION_DISTRIBUTION}}",
+        "{{PROJECT_DIR}}validacion/run_validacion.py",
+        "{{PROJECT_DIR}}validacion/resultados_{fecha}.xlsx con las hojas Detalle, Resumen y Fallos"
+      ],
+      "verificacion": [
+        "El informe tiene una fila por pregunta ejecutada con su traza de nodos",
+        "El resumen da el acierto del router por rama, no solo el total"
+      ]
+    },
+    {
+      "id": "11-notebook-estudio",
+      "nombre": "Notebook para estudiar el agente",
+      "estado": "pendiente",
+      "agente": "notebook",
+      "depende_de": ["09-documentacion"],
+      "descripcion": "Lo ejecuta el agente notebook, no el implementator. Se hace al final para que documente el codigo tal como quedo. Detalle completo en opencode/agents/notebook.md.",
+      "entregables": [
+        "{{PROJECT_DIR}}notebooks/explorar_agente.ipynb con las 12 secciones"
+      ],
+      "verificacion": [
+        "El notebook es valido segun nbformat y se ejecuta de arriba abajo",
+        "Las salidas estan vacias y no contiene credenciales"
+      ]
+    }
+  ]
+}

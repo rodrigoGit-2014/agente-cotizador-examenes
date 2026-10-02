@@ -18,7 +18,7 @@ Los parámetros se toman del mensaje del usuario. Por ejemplo: *"un centro radio
 | Ciudad | Sí | Talca, Santiago | Pregúntala antes de comenzar |
 | Comuna o sector | No | Ñuñoa | Cualquier comuna de la ciudad |
 | Centro específico | No | nombre de un centro concreto | Elige un centro real de la especialidad en esa ciudad |
-| Exámenes | No | lista de códigos y nombres | Crea 3 exámenes habituales de la especialidad (ver sección 5) |
+| Exámenes | No | lista de exámenes, por nombre o por descripción | Crea 3 exámenes habituales de la especialidad (ver sección 5) |
 
 Si falta un parámetro obligatorio, **pregunta antes de generar**. No supongas la especialidad ni la ciudad.
 
@@ -184,10 +184,20 @@ No utilices datos personales de personas reales como parte del contenido.
 
 ### Qué exámenes incluir
 
-* **Si el usuario entregó una lista de exámenes con códigos**, usa exactamente esos exámenes y esos códigos, escritos tal como se entregaron.
-* **Si no la entregó**, crea **3 exámenes habituales de la especialidad**, plausibles para un centro de ese tipo, y asígnales códigos con el formato `PREFIJO-ABREV-NNN`, donde `PREFIJO` son tres letras de la especialidad (por ejemplo, `OFT` para oftalmología o `RAD` para radiología), `ABREV` es una abreviatura del examen y `NNN` es un correlativo (`001`, `002`, `003`). Además, **fuera del `.tex`**, al final de tu respuesta, entrega una tabla con los códigos, nombres comunes y formas coloquiales creados, para incorporarlos al catálogo común.
+* **Si el usuario entregó una lista de exámenes**, inclúyelos. Si un examen se entregó con una descripción o un propósito, respétalos: el examen del documento debe ser ese examen, no otro con un nombre parecido.
+* **Si no la entregó**, crea **3 exámenes habituales de la especialidad**, plausibles para un centro de ese tipo.
+
+Cada examen lleva un **código interno del centro**, único dentro del documento, con el formato que prefieras (por ejemplo, `OFT-GLU-002`). No es necesario que coincida con códigos de otros centros.
 
 Toda la información específica del centro para cada examen (requisitos, precios, horarios, preparación, etc.) debe ser creada para este documento.
+
+### Descripción precisa de cada examen
+
+La descripción de cada examen se usa para decidir si corresponde a lo que necesita un paciente, por lo que debe ser **inequívoca**:
+
+* di con precisión qué se mide o se observa y para qué sirve, de modo que no pueda confundirse con otro examen de nombre parecido (por ejemplo, distingue claramente una medición de la graduación de una medición de la curvatura de la córnea);
+* el nombre técnico, el nombre común, las formas coloquiales y la descripción deben referirse al mismo examen;
+* no incluyas formas coloquiales que correspondan a otro examen.
 
 ### Estructura de cada examen
 
@@ -195,7 +205,7 @@ Para cada examen, usa **exactamente los siguientes títulos de subsección, en e
 
 ### Identificación
 
-* Código.
+* Código interno del centro.
 * Nombre técnico.
 * Nombre común.
 * Posibles formas coloquiales en que un paciente podría solicitarlo.
@@ -337,7 +347,7 @@ Todo dato que aparezca en más de una sección debe ser **idéntico** en todas. 
 
 * precios por modalidad (detalle del examen, políticas y tabla resumen);
 * exigencia de orden médica por examen y por modalidad (sección de órdenes médicas, requisitos, precios y tabla resumen);
-* recomendación u obligación de acompañante (requisitos, conducción y acompañamiento, y tabla resumen);
+* recomendación u obligación de acompañante, también para menores de edad (requisitos, conducción y acompañamiento, y tabla resumen): si una sección dice que algo "se requiere", ninguna otra puede decir que "se sugiere" o "no se exige";
 * días, horarios y anticipación de cada examen (información general, horarios diferenciados, atención y tabla resumen);
 * duración, plazo de resultados e inclusión de imágenes.
 
@@ -366,7 +376,9 @@ Estos criterios se verifican para decidir si el documento está listo. **No debe
 * nombre, dirección y teléfono provienen de una fuente web pública, y el teléfono está escrito tal como aparece en ella;
 * esos son los únicos datos reales utilizados;
 * todo el resto de la información fue creada para este documento;
-* los exámenes son los indicados por el usuario, con sus códigos exactos, o son 3 exámenes habituales de la especialidad con códigos en el formato indicado y entregados en una tabla fuera del `.tex`;
+* los exámenes son los indicados por el usuario, respetando su descripción si se entregó, o son 3 exámenes habituales de la especialidad;
+* cada examen tiene un código interno único dentro del documento;
+* la descripción de cada examen es inequívoca y coherente con su nombre técnico, su nombre común y sus formas coloquiales;
 * cada examen usa los mismos títulos de subsección, en el mismo orden;
 * los exámenes contienen información suficiente para una cotización;
 * existen precios, reglas de disponibilidad, requisitos y recomendaciones;

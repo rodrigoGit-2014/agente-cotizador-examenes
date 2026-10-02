@@ -8,19 +8,28 @@
 > **Bloqueos resueltos a nivel de definición:** seguridad básica (sección "Seguridad
 > básica"), eventos de conversación y escenarios (sección "Datos de prueba"). El formato
 > concreto de los archivos se define en la etapa de diseño.
-> **Pendiente:** corregir las contradicciones del documento del centro actual y generar los
-> documentos de al menos dos centros más.
+> **Pendiente:**
+> - Documento de Centro Oftalmológico MiVisión: corregir dos contradicciones (acompañante de
+>   fondo de ojo en la tabla resumen; presencia de adulto para menores de 12 años en
+>   curvimetría) y verificar a mano que el teléfono coincida con la fuente pública.
+> - Documento de Centro Oftalmológico Talca (versión anterior): regenerarlo con el prompt
+>   actual.
+> - Generar al menos un documento de centro más.
 
 ---
 
 ## Glosario
 
-- **Catálogo de exámenes:** la lista común de exámenes que el sistema conoce, de cualquier
-  especialidad, con su código en formato `PREFIJO-ABREV-NNN` (por ejemplo, `OFT-GLU-002`
-  u otro con prefijo `RAD` para radiología), su nombre común y las formas coloquiales con
-  que la gente lo pide. Todos los centros usan los mismos códigos. El catálogo crece al
-  incorporar especialidades nuevas. Si un examen no está en el catálogo, el sistema no lo
-  cotiza.
+- **Necesidad del usuario:** descripción en palabras simples del examen que la persona
+  necesita y para qué (por ejemplo, "medición de la graduación para cambiar lentes"). Se
+  extrae de lo que escribe el usuario y es la misma para todos los centros consultados.
+- **Exámenes del centro:** la lista de exámenes que ofrece cada centro, con el nombre,
+  la descripción, el propósito y el código interno que ese centro usa. Cada centro nombra
+  y codifica sus exámenes a su manera; los códigos no tienen que coincidir entre centros.
+- **Identificación del examen:** decisión del LLM, para cada centro, sobre cuál de sus
+  exámenes corresponde a la necesidad del usuario. El resultado es "coincide", "dudoso" o
+  "no coincide", con una justificación breve que queda en la traza. Se decide por la
+  descripción y el propósito del examen, no por su nombre.
 - **Centro:** recinto del simulador que realiza uno o más exámenes. Conserva el nombre, la
   dirección y el teléfono públicos de un centro real; todo lo demás es ficticio.
 - **Cobertura:** cualquier ciudad de Chile. En la práctica, el agente solo obtiene
@@ -41,9 +50,10 @@
 - **Evento de conversación:** comportamiento que un escenario le asigna a un centro y que no
   sale de su documento (por ejemplo, "no tiene agenda esta semana" o "intenta agendar").
   Ver "Datos de prueba".
-- **Cotización:** lo que se obtiene de un centro en una consulta: si hace el examen, el precio
-  informado y su modalidad, la próxima hora disponible y la preparación, cuando el centro la
-  menciona.
+- **Cotización:** lo que se obtiene de un centro en una consulta: el examen del centro que
+  se cotizó, si lo realiza, el precio informado y su modalidad, la próxima hora disponible y
+  la preparación, cuando el centro la menciona.
+- **Cotización comparable:** cotización de un examen cuya identificación fue "coincide".
 - **Observación:** lo que devuelve una herramienta en cada paso del ciclo ReAct (por ejemplo,
   la transcripción de una conversación con un centro).
 - **N:** número de cotizaciones que el usuario quiere obtener. Si no lo indica, **N = 2**.
@@ -91,15 +101,17 @@ beneficiario.
 Después de usarlo, el usuario puede:
 
 - **Decidir con datos** en lugar de decidir con la primera respuesta que le den.
-- **Comparar las opciones que pidió (N; por defecto, 2) en los mismos ejes**: si el centro
-  hace el examen, precio informado (junto con la modalidad —particular, Fonasa, Isapre,
+- **Comparar las opciones que pidió (N; por defecto, 2) en los mismos ejes**: el nombre del
+  examen en cada centro, si el centro lo hace, precio informado (junto con la modalidad —particular, Fonasa, Isapre,
   convenio— si el centro la mencionó), próxima hora disponible y preparación, cuando se
   informó.
 - **Saber qué centros quedan descartados** y por qué (no hacen el examen, no contestan o no
   tienen horas) — y no gastar la llamada en ellos.
 - **Describir el examen como lo diría cualquier persona**, sin conocer su nombre técnico.
-  Por ejemplo, escribir "el examen de la presión del ojo" y que el agente reconozca que se
-  trata de la medición de glaucoma.
+  Por ejemplo, escribir "el examen de la presión del ojo" y que el agente reconozca, en cada
+  centro, el examen que corresponde, aunque cada centro lo llame distinto.
+- **Saber cuándo una coincidencia no es segura**: los exámenes que podrían corresponder,
+  pero no con certeza, se muestran aparte para confirmarlos con el centro.
 - **Resolver dudas sobre la información publicada** de un centro (preparación, requisitos,
   días de atención) sin necesidad de una llamada.
 - **Llegar a la decisión con un shortlist** y saber a quién llamar.
@@ -114,18 +126,19 @@ El agente actúa como un **asistente de cotización**.
 Su responsabilidad es:
 
 1. Entender la necesidad expresada por el usuario.
-2. Reconocer a qué examen del catálogo se refiere el usuario, aunque lo describa con otras
-   palabras (por ejemplo, "presión del ojo" → medición de glaucoma). Si no hay una
-   coincidencia clara, lo dice o pregunta; no supone.
-3. Identificar los datos necesarios para la consulta: examen, ciudad, previsión y cuántas
-   cotizaciones desea (N).
-4. Buscar en la web los centros que realizan el examen en esa ciudad y obtener su contacto.
-5. Consultar los centros mediante las herramientas disponibles.
-6. Interpretar cada conversación y registrar la cotización obtenida.
-7. Determinar cuándo dispone de información suficiente para consolidar el resultado.
-8. Presentar las alternativas de forma comparable.
-9. Explicar qué información fue confirmada y cuál no pudo ser confirmada.
-10. Responder preguntas sobre la información publicada de los centros, consultando sus
+2. Expresar lo que pide el usuario como una necesidad clara (qué examen y para qué). Si la
+   necesidad es ambigua, pregunta; no supone.
+3. Identificar los datos necesarios para la consulta: necesidad, ciudad, previsión y
+   cuántas cotizaciones desea (N).
+4. Buscar en la web los centros de la especialidad en esa ciudad y obtener su contacto.
+5. Identificar, en cada centro, cuál de sus exámenes corresponde a la necesidad, según su
+   descripción y propósito.
+6. Consultar los centros mediante las herramientas disponibles.
+7. Interpretar cada conversación y registrar la cotización obtenida.
+8. Determinar cuándo dispone de información suficiente para consolidar el resultado.
+9. Presentar las alternativas de forma comparable.
+10. Explicar qué información fue confirmada y cuál no pudo ser confirmada.
+11. Responder preguntas sobre la información publicada de los centros, consultando sus
     documentos solo cuando la pregunta lo requiere.
 
 El agente **no toma la decisión final por el usuario**.
@@ -133,20 +146,22 @@ El agente **no toma la decisión final por el usuario**.
 ## Flujo esperado
 
 1. Recibir la solicitud del usuario.
-2. Identificar examen, ciudad, previsión y N. Si el usuario no indica N, usar N = 2 e
-   informarlo en la respuesta, sin preguntarlo.
-3. Si falta el examen o la ciudad, solicitarlo. La previsión se pregunta **una sola vez**:
-   si el usuario no la sabe, se continúa con previsión "no especificada".
-4. Reconocer a qué examen del catálogo corresponde lo que pidió el usuario. Si no
-   corresponde a ninguno, aplicar "Manejo de solicitudes fuera de catálogo".
-5. Buscar en la web los centros de la especialidad en la ciudad y obtener su nombre,
+2. Identificar la necesidad, la ciudad, la previsión y N. Si el usuario no indica N, usar
+   N = 2 e informarlo en la respuesta, sin preguntarlo.
+3. Si falta la necesidad o la ciudad, o la necesidad es ambigua, solicitarlo. La previsión
+   se pregunta **una sola vez**: si el usuario no la sabe, se continúa con previsión "no
+   especificada".
+4. Buscar en la web los centros de la especialidad en la ciudad y obtener su nombre,
    dirección y teléfono.
-6. Consultar los centros uno por uno mediante la conversación simulada.
+5. Para cada centro, identificar cuál de sus exámenes corresponde a la necesidad
+   ("coincide", "dudoso" o "no coincide").
+6. Consultar, uno por uno, los centros donde hay un examen que coincide, preguntando por
+   el examen con el nombre que usa ese centro.
 7. Interpretar cada conversación y registrar la cotización en el estado de la consulta.
 8. Evaluar si ya hay N cotizaciones comparables.
 9. Si no las hay, continuar consultando dentro del límite permitido.
 10. Consolidar los resultados y verificar que cada dato provenga de una observación.
-11. Presentar las alternativas de forma comparable.
+11. Presentar las alternativas comparables y, aparte, las coincidencias dudosas.
 12. Finalizar la interacción.
 
 ## Cómo es una consulta a un centro
@@ -205,26 +220,26 @@ ofrece; el evento describe una situación del momento. Las reglas de combinació
 ### Entra
 
 - **Consulta en lenguaje natural:** el usuario indica examen, ciudad y previsión con sus
-  propias palabras y, opcionalmente, cuántas cotizaciones quiere. El agente reconoce a qué
-  examen del catálogo corresponde lo pedido.
+  propias palabras y, opcionalmente, cuántas cotizaciones quiere. El agente expresa lo
+  pedido como una necesidad y reconoce, en cada centro, el examen que corresponde.
 - **Simulador de entorno**, compuesto por:
-  1. **Catálogo común de exámenes.** Códigos, nombres comunes y formas coloquiales, en un
-     archivo versionado.
-  2. **Documentos de centros.** Un PDF por centro, generado con el prompt generador y
+  1. **Documentos de centros.** Un PDF por centro, generado con el prompt generador y
      cargado en el Redis del curso (paso de ingesta: extracción, limpieza, fragmentos por
-     sección, embeddings). Cada fragmento lleva el identificador del centro, el código del
-     examen y la sección.
-  3. **Búsqueda de centros en la web.** Hace el paso que hoy hace el usuario: dada una
+     sección, embeddings). Cada fragmento lleva el identificador del centro, el código
+     interno del examen en ese centro y la sección. En la misma ingesta se extrae, por
+     código y aprovechando los títulos fijos de cada examen, la **lista de exámenes del
+     centro** (nombre, descripción, propósito y código interno).
+  2. **Búsqueda de centros en la web.** Hace el paso que hoy hace el usuario: dada una
      especialidad y una ciudad, busca en la web y devuelve los centros con su nombre,
      dirección y teléfono públicos. Funciona en dos modos: *en vivo* (consulta la web) y
      *instantánea* (lee un archivo versionado con una búsqueda anterior). La instantánea es
      el modo por defecto, tanto en las pruebas como en la conversación libre; el modo en
      vivo se activa a propósito. Un centro encontrado sin documento en Redis no contesta en
      la simulación.
-  4. **Escenarios.** Archivos versionados que fijan la fecha simulada, la instantánea de
+  3. **Escenarios.** Archivos versionados que fijan la fecha simulada, la instantánea de
      búsqueda, la próxima hora disponible de cada examen en cada centro y los eventos de
      conversación.
-  5. **Llamada simulada.** Conversación por texto entre un **llamador** (código con un
+  4. **Llamada simulada.** Conversación por texto entre un **llamador** (código con un
      guion de objetivos, que nunca entrega datos personales ni acepta reservas) y una
      **recepcionista** (LLM que responde solo con los fragmentos de su centro, la agenda del
      escenario y los eventos asignados).
@@ -233,12 +248,12 @@ ofrece; el evento describe una situación del momento. Las reglas de combinació
   centros se generan con un prompt parametrizable (especialidad, ciudad, comuna y
   exámenes), y cada centro conserva su nombre, dirección y teléfono públicos; todo lo
   demás es ficticio. Agregar una especialidad o ciudad nueva consiste en generar sus
-  documentos, sumar sus exámenes al catálogo común y guardar su instantánea de búsqueda,
-  sin cambiar el código del agente.
+  documentos y guardar su instantánea de búsqueda, sin cambiar el código del agente.
 
-  Conjunto inicial: centros de Talca con exámenes oftalmológicos
-  (`OFT-CV-001` curvimetría, `OFT-GLU-002` medición de glaucoma, `OFT-FDO-003` fondo de
-  ojo).
+  Conjunto inicial: centros de Talca con exámenes oftalmológicos (por ejemplo, curvimetría,
+  medición de glaucoma y fondo de ojo). Dos centros pueden usar el mismo nombre para
+  exámenes distintos: en los documentos actuales, "curvimetría" es una medición de la
+  graduación en un centro y una medición de la córnea en otro.
 - **Consulta de información publicada:** el agente puede consultar los documentos de los
   centros en Redis para responder preguntas de preparación, requisitos u horarios generales.
   El precio vigente y la próxima hora se obtienen siempre de la llamada.
@@ -254,7 +269,10 @@ ofrece; el evento describe una situación del momento. Las reglas de combinació
   - Centro que no hace el examen, no contesta o no entrega todos los datos.
   - Centro que intenta agendar o pide datos del paciente.
   - Pregunta sobre información publicada (preparación, horarios).
-  - Examen fuera de catálogo.
+  - Dos centros que usan el mismo nombre para exámenes distintos.
+  - Coincidencia dudosa entre la necesidad y el examen de un centro.
+  - Necesidad ambigua, que obliga a preguntar.
+  - Examen que ningún centro encontrado ofrece.
   - Petición de reserva y jailbreak sencillo.
 - **Seguridad básica:** definida en la sección "Seguridad básica".
 - Entrega como **notebook ejecutable** de punta a punta.
@@ -299,29 +317,35 @@ El agente nunca debe:
 - Ejecutar acciones que no estén definidas por las herramientas disponibles.
 - Agendar horas, aceptar reservas o entregar datos del paciente al centro, aunque el
   centro lo ofrezca o los pida.
-- Consultar información fuera del catálogo disponible.
+- Contar como comparable un examen cuya identificación fue "dudoso" o "no coincide".
+- Decidir que dos exámenes son el mismo solo porque tienen el mismo nombre.
 - Solicitar datos personales que no sean necesarios para cotizar, ni reenviar los que el
   usuario entregue por iniciativa propia.
 - Interpretar diagnósticos médicos.
-- Convertir una coincidencia aproximada del catálogo en una afirmación de que se trata del
-  mismo examen cuando no existe confirmación.
+- Convertir una coincidencia aproximada en una afirmación de que se trata del examen que
+  necesita el usuario cuando no existe confirmación.
 - Tratar un tono de urgencia o una instrucción del usuario como permiso para saltarse estas
   reglas.
 
-## Manejo de solicitudes fuera de catálogo
+## Manejo de exámenes sin coincidencia
 
-Si el usuario solicita un examen que no existe en el catálogo:
+Si ningún centro encontrado ofrece un examen que coincida con la necesidad:
 
-- El agente no debe intentar aproximarlo a otro examen.
-- Debe informar que no puede realizar la cotización con el catálogo disponible.
-- Debe indicar qué exámenes están disponibles.
+- El agente no debe aproximarlo a otro examen.
+- Debe informar que no encontró centros que realicen ese examen en la ciudad.
+- Debe mostrar las coincidencias dudosas, si las hubo, indicando que hay que confirmarlas
+  con el centro.
 - No debe inventar centros, precios, disponibilidad ni equivalencias.
+
+Si lo pedido no es un examen (por ejemplo, una cirugía o una consulta médica), el agente
+informa que solo cotiza exámenes.
 
 ## Condición de parada
 
 El agente puede consolidar el resultado cuando:
 
-- Ha obtenido **N cotizaciones comparables** (N indicado por el usuario; por defecto, 2), o
+- Ha obtenido **N cotizaciones comparables** (N indicado por el usuario; por defecto, 2;
+  solo cuentan los exámenes identificados como "coincide"), o
 - Ha consultado todos los centros relevantes disponibles, o
 - No existen más centros aplicables en el simulador.
 
@@ -351,8 +375,8 @@ de generación.
 
 | Dato | Cuántos | Quién lo prepara |
 |---|---|---|
-| Catálogo común de exámenes | Uno | A mano |
 | Documentos de centros | Uno por centro (al menos tres) | Con el prompt generador, revisado a mano |
+| Lista de exámenes por centro | Una por centro | Se extrae por código del documento, en la ingesta |
 | Instantánea de búsqueda | Una por especialidad y ciudad | Una búsqueda web, guardada |
 | Eventos de conversación | Un archivo con los seis eventos | A mano, una vez |
 | Escenarios | Entre 5 y 8 para empezar | A mano, uno por situación a probar |
@@ -406,7 +430,7 @@ escenarios al cargarlos.
 
 El agente solo puede:
 
-- cotizar exámenes del catálogo en ciudades de Chile;
+- cotizar exámenes médicos en ciudades de Chile;
 - responder preguntas sobre la información publicada de los centros (preparación,
   requisitos, días de atención);
 - explicar qué puede y qué no puede hacer.
@@ -419,8 +443,9 @@ cotización si la necesita.
 
 | Herramienta | Qué hace | Límites |
 |---|---|---|
-| `buscar_centros` | Busca centros en la web (o lee una instantánea) | Solo lectura. Solo especialidades del catálogo y ciudades de Chile |
-| `consultar_centro` | Ejecuta la llamada simulada con un centro | Solo centros devueltos por la búsqueda de la consulta actual y exámenes del catálogo |
+| `buscar_centros` | Busca centros en la web (o lee una instantánea) | Solo lectura. Solo especialidades médicas y ciudades de Chile |
+| `identificar_examen` | Lee la lista de exámenes de un centro y decide cuál corresponde a la necesidad | Solo lectura. Solo centros devueltos por la búsqueda actual |
+| `consultar_centro` | Ejecuta la llamada simulada con un centro | Solo centros devueltos por la búsqueda actual y un examen identificado como "coincide" en ese centro |
 | `consultar_documentos` | Recupera fragmentos de documentos en Redis | Solo lectura, filtrada por centro y examen |
 
 Ninguna herramienta reserva, paga, envía mensajes ni contacta a un centro real. No existe
@@ -429,14 +454,17 @@ ninguna otra acción.
 ### Capas de control
 
 1. **Instrucciones en cada llamada al LLM que decide o responde:** router, agente,
-   interpretar, responder, respuesta directa y recepcionista simulada. Todas comparten un
+   identificación del examen, interpretar, responder, respuesta directa y recepcionista
+   simulada. Todas comparten un
    bloque común de seguridad (alcance, acciones permitidas, prohibiciones, privacidad) más
    las reglas propias de su rol.
 2. **Controles en código, que no dependen del modelo:**
-   - solo están registradas las tres herramientas de la tabla;
-   - los argumentos se validan antes de ejecutar (el código de examen existe en el
-     catálogo, el centro pertenece a la búsqueda actual, la ciudad es de Chile);
-   - el llamador de la llamada simulada es código y solo conoce el examen y la previsión,
+   - solo están registradas las herramientas de la tabla;
+   - los argumentos se validan antes de ejecutar (el centro pertenece a la búsqueda
+     actual, el examen pertenece a la lista de ese centro y fue identificado como
+     "coincide", la ciudad es de Chile);
+   - el llamador de la llamada simulada es código y solo conoce el nombre del examen en
+     ese centro y la previsión,
      así que no puede entregar datos personales ni aceptar una reserva;
    - el tope de iteraciones se aplica por código;
    - el verificador reemplaza por "no confirmado" cualquier dato del reporte que no
@@ -448,7 +476,7 @@ ninguna otra acción.
 
 ### Datos personales
 
-- El router extrae solo los campos permitidos: examen, ciudad, previsión y N.
+- El router extrae solo los campos permitidos: necesidad, ciudad, previsión y N.
 - Si el usuario escribe un nombre, RUT o diagnóstico, ese dato no se guarda en la
   solicitud, no se pasa a ninguna herramienta y el agente aclara que no lo necesita.
 
@@ -495,7 +523,9 @@ Si una prueba falla, se corrige y se repite; no se elimina.
 
 4. **Comparabilidad antes que completitud.** Dos opciones con los mismos campos valen más
    que siete con campos dispares. Un centro que no admite comparación se marca como
-   incompleto, no se esconde.
+   incompleto, no se esconde. Y dos exámenes se comparan solo si cumplen el mismo propósito,
+   aunque se llamen distinto; dos exámenes con el mismo nombre y distinto propósito no se
+   comparan.
 
 5. **Simulado no significa falso.** El simulador usa la misma interfaz que tendría el
    sistema en producción, y sus datos se pueden contrastar contra una verdad conocida. Es
@@ -523,6 +553,8 @@ Además del resultado final, se evaluará:
 - Correcta selección y utilización de herramientas, incluida la decisión de consultar o no
   los documentos.
 - Capacidad para solicitar información faltante.
+- Correcta identificación del examen en cada centro, incluidos los casos de mismo nombre y
+  distinto propósito.
 - Correcta interpretación de las observaciones.
 - Cumplimiento de la condición de parada, incluido el N solicitado.
 - Ausencia de información inventada.
@@ -542,7 +574,7 @@ Además del resultado final, se evaluará:
 4. El ciclo **siempre termina**: se respeta la condición de parada y el tope de
    iteraciones; nunca entra en bucle ni para antes de obtener N cotizaciones cuando aún
    quedan centros por consultar.
-5. Ante una entrada fuera de catálogo o una petición fuera de alcance —incluido un
+5. Ante un examen que ningún centro ofrece o una petición fuera de alcance —incluido un
    jailbreak sencillo, o un centro simulado que intenta agendar o pide datos del
    paciente— el agente **responde con el límite y no ejecuta la acción**.
 6. En un segundo turno, el agente **usa datos del primero** (ciudad, previsión) tomados del

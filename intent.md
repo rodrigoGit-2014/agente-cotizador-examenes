@@ -15,11 +15,17 @@
 
 ## Glosario
 
-- **Catálogo de exámenes:** la lista común de exámenes que el sistema conoce, con su código
-  (por ejemplo, `OFT-GLU-002`), su nombre común y las formas coloquiales con que la gente lo
-  pide. Todos los centros usan los mismos códigos. Si un examen no está en el catálogo, el
-  sistema no lo cotiza.
-- **Centro:** recinto ficticio del simulador que realiza uno o más exámenes.
+- **Catálogo de exámenes:** la lista común de exámenes que el sistema conoce, de cualquier
+  especialidad, con su código en formato `PREFIJO-ABREV-NNN` (por ejemplo, `OFT-GLU-002`
+  u otro con prefijo `RAD` para radiología), su nombre común y las formas coloquiales con
+  que la gente lo pide. Todos los centros usan los mismos códigos. El catálogo crece al
+  incorporar especialidades nuevas. Si un examen no está en el catálogo, el sistema no lo
+  cotiza.
+- **Centro:** recinto del simulador que realiza uno o más exámenes. Conserva el nombre, la
+  dirección y el teléfono públicos de un centro real; todo lo demás es ficticio.
+- **Cobertura:** cualquier ciudad de Chile. En la práctica, el agente solo obtiene
+  cotizaciones donde existen documentos de centros cargados; en una ciudad o especialidad
+  sin documentos, los centros encontrados no contestan y el agente lo informa.
 - **Documento del centro:** PDF con la información publicada de un centro (información
   general, políticas, catálogo con precios y requisitos). Se genera con
   `prompt-generador-centro-examenes.md` y se carga en Redis para el RAG.
@@ -70,7 +76,8 @@ mayor, ese tiempo lo pone un familiar que coordina todo.
 
 **Primario:** la persona que necesita el examen, o el familiar que gestiona por ella.
 
-**Caso ancla:** mujer adulta mayor, **Fonasa tramo B**, ciudad de **Talca**, examen de
+**Caso ancla** (ejemplo de referencia, no un límite de cobertura): mujer adulta mayor,
+**Fonasa tramo B**, ciudad de **Talca**, examen de
 **medición de glaucoma**. El familiar consulta; ella no usa el sistema.
 
 **Secundario:** usuario de Isapre, con menos tiempo disponible y menos disposición a llamar,
@@ -222,10 +229,16 @@ ofrece; el evento describe una situación del momento. Las reglas de combinació
      **recepcionista** (LLM que responde solo con los fragmentos de su centro, la agenda del
      escenario y los eventos asignados).
 
-  Conjunto inicial: centros de Talca (nombre, dirección y teléfono públicos; todo lo demás
-  ficticio) con exámenes oftalmológicos
+  El sistema no está amarrado a una ciudad ni a una especialidad. Los documentos de
+  centros se generan con un prompt parametrizable (especialidad, ciudad, comuna y
+  exámenes), y cada centro conserva su nombre, dirección y teléfono públicos; todo lo
+  demás es ficticio. Agregar una especialidad o ciudad nueva consiste en generar sus
+  documentos, sumar sus exámenes al catálogo común y guardar su instantánea de búsqueda,
+  sin cambiar el código del agente.
+
+  Conjunto inicial: centros de Talca con exámenes oftalmológicos
   (`OFT-CV-001` curvimetría, `OFT-GLU-002` medición de glaucoma, `OFT-FDO-003` fondo de
-  ojo). Se amplía agregando documentos y escenarios, sin cambiar el código del agente.
+  ojo).
 - **Consulta de información publicada:** el agente puede consultar los documentos de los
   centros en Redis para responder preguntas de preparación, requisitos u horarios generales.
   El precio vigente y la próxima hora se obtienen siempre de la llamada.
@@ -256,7 +269,7 @@ ofrece; el evento describe una situación del momento. Las reglas de combinació
   el centro.
 - Recomendación automática ("te recomiendo este centro").
 - Lectura (OCR) de la orden médica.
-- Cobertura fuera de Talca / Chile.
+- Cobertura fuera de Chile.
 - Datos reales de pacientes, multiusuario, memoria a largo plazo.
 
 ## Restricciones
@@ -313,7 +326,8 @@ El agente puede consolidar el resultado cuando:
 - No existen más centros aplicables en el simulador.
 
 Si termina con menos de N cotizaciones, lo informa explícitamente y explica por qué
-(cuántos centros había y cuáles se descartaron).
+(cuántos centros había y cuáles se descartaron). Si la búsqueda no encuentra centros, o
+ninguno contesta, lo informa en vez de entregar un reporte vacío.
 
 El agente debe respetar un **máximo de iteraciones** definido por el equipo y no debe
 entrar en bucles. Ese máximo debe ser suficiente para consultar todos los centros
@@ -392,7 +406,7 @@ escenarios al cargarlos.
 
 El agente solo puede:
 
-- cotizar exámenes del catálogo en las ciudades cubiertas;
+- cotizar exámenes del catálogo en ciudades de Chile;
 - responder preguntas sobre la información publicada de los centros (preparación,
   requisitos, días de atención);
 - explicar qué puede y qué no puede hacer.
@@ -405,7 +419,7 @@ cotización si la necesita.
 
 | Herramienta | Qué hace | Límites |
 |---|---|---|
-| `buscar_centros` | Busca centros en la web (o lee una instantánea) | Solo lectura. Solo especialidades del catálogo y ciudades cubiertas |
+| `buscar_centros` | Busca centros en la web (o lee una instantánea) | Solo lectura. Solo especialidades del catálogo y ciudades de Chile |
 | `consultar_centro` | Ejecuta la llamada simulada con un centro | Solo centros devueltos por la búsqueda de la consulta actual y exámenes del catálogo |
 | `consultar_documentos` | Recupera fragmentos de documentos en Redis | Solo lectura, filtrada por centro y examen |
 
@@ -421,7 +435,7 @@ ninguna otra acción.
 2. **Controles en código, que no dependen del modelo:**
    - solo están registradas las tres herramientas de la tabla;
    - los argumentos se validan antes de ejecutar (el código de examen existe en el
-     catálogo, el centro pertenece a la búsqueda actual, la ciudad está cubierta);
+     catálogo, el centro pertenece a la búsqueda actual, la ciudad es de Chile);
    - el llamador de la llamada simulada es código y solo conoce el examen y la previsión,
      así que no puede entregar datos personales ni aceptar una reserva;
    - el tope de iteraciones se aplica por código;
@@ -442,7 +456,7 @@ ninguna otra acción.
 
 Respuesta breve que nombra el límite y ofrece lo que sí puede hacer, sin repetir la
 instrucción indebida y sin sermonear. Ejemplo: *"No puedo reservar horas: solo entrego
-cotizaciones. Si quiere, cotizo la medición de glaucoma en Talca para que usted llame al
+cotizaciones. Si quiere, cotizo el examen en su ciudad para que usted llame al
 centro que elija."*
 
 ### Pruebas de seguridad

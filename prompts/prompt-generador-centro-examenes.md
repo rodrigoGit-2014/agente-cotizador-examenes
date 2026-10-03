@@ -18,6 +18,7 @@ Los parámetros se toman del mensaje del usuario. Por ejemplo: *"un centro radio
 | Ciudad | Sí | Talca, Santiago | Pregúntala antes de comenzar |
 | Comuna o sector | No | Ñuñoa | Cualquier comuna de la ciudad |
 | Centro específico | No | nombre de un centro concreto | Elige un centro real de la especialidad en esa ciudad |
+| Centros a excluir | No | nombres de centros ya generados | No excluye ninguno |
 | Exámenes | No | lista de exámenes, por nombre o por descripción | Crea 3 exámenes habituales de la especialidad (ver sección 5) |
 
 Si falta un parámetro obligatorio, **pregunta antes de generar**. No supongas la especialidad ni la ciudad.
@@ -28,7 +29,7 @@ En el resto de este prompt, "la especialidad", "la ciudad" y "la comuna" se refi
 
 # 1. Investigación web obligatoria
 
-Antes de generar el documento debes realizar una búsqueda en Internet para identificar **un centro real de la especialidad, ubicado en la ciudad (y en la comuna, si se indicó)**. Si se indicó un centro específico, búscalo a él.
+Antes de generar el documento debes realizar una búsqueda en Internet para identificar **un centro real de la especialidad, ubicado en la ciudad (y en la comuna, si se indicó)**. Si se indicó un centro específico, búscalo a él. Si se indicaron centros a excluir, elige uno distinto de todos ellos; si no queda ninguno disponible, informa que no encontraste otro centro.
 
 Utiliza fuentes públicas disponibles en la web.
 
@@ -329,11 +330,15 @@ El texto del PDF compilado debe poder **extraerse sin errores** (copiar y pegar 
 
 Evita utilizar paquetes innecesarios. El documento debe compilar correctamente en un entorno LaTeX estándar con `pdflatex`.
 
-Guarda el resultado con este nombre, en minúsculas, sin tildes y con guiones bajos:
+Guarda el resultado con este nombre, en minúsculas, sin tildes, sin signos y con guiones bajos:
 
-`centro_<especialidad>_<ciudad>_<comuna>.tex` (omite `<comuna>` si no se indicó).
+`<especialidad>_<ciudad>_<nombre_del_centro>.tex`
 
-Por ejemplo: `centro_oftalmologia_talca.tex` o `centro_radiologia_santiago_nunoa.tex`.
+donde `<nombre_del_centro>` es el nombre del centro elegido, sin palabras genéricas como "centro", "clínica" o la especialidad, para que el nombre del archivo sea corto pero único.
+
+Por ejemplo: el Centro Oftalmológico MiVisión de Talca se guarda como `oftalmologia_talca_mivision.tex`, y un Centro Radiológico Los Alerces de Ñuñoa, como `radiologia_santiago_los_alerces.tex`.
+
+Al final de tu respuesta, fuera del `.tex`, indica el nombre del archivo y el centro elegido (nombre, dirección y teléfono), para poder llevar el registro de los centros ya generados.
 
 ---
 
@@ -372,7 +377,8 @@ La tabla resumen se construye **al final**, copiando los valores del detalle de 
 Estos criterios se verifican para decidir si el documento está listo. **No deben escribirse dentro del documento.**
 
 * los parámetros obligatorios (especialidad y ciudad) fueron indicados por el usuario o preguntados;
-* existe un centro real de la especialidad en la ciudad (y comuna, si se indicó);
+* existe un centro real de la especialidad en la ciudad (y comuna, si se indicó), distinto de los centros a excluir;
+* el nombre del archivo incluye el nombre del centro y no coincide con el de otro centro ya generado;
 * nombre, dirección y teléfono provienen de una fuente web pública, y el teléfono está escrito tal como aparece en ella;
 * esos son los únicos datos reales utilizados;
 * todo el resto de la información fue creada para este documento;

@@ -1,0 +1,279 @@
+{
+  "proyecto": "cotizador-examenes",
+  "descripcion": "Plan incremental del cotizador de examenes medicos. Un paso por ejecucion. Estados validos: 'pendiente' | 'hecho'. La especificacion completa de la implementacion esta en opencode/agents/implementator.md; los requisitos verificables, en spec.md; la fuente de verdad del producto, en intent.md.",
+  "estados_validos": ["pendiente", "hecho"],
+  "pasos": [
+    {
+      "id": "01-estructura-base",
+      "nombre": "Proyecto, configuracion, estado y dependencias",
+      "estado": "hecho",
+      "agente": "implementator",
+      "depende_de": [],
+      "descripcion": "Esqueleto del proyecto (F0). Sin grafo todavia: solo estructura, configuracion, modelos y estado compartido. Deja el entorno listo para llamar a Gemini.",
+      "entregables": [
+        "cotizador-examenes/ con las carpetas nodes/ tools/ agents/ services/ prompts/ data/ scripts/ resultados/",
+        "config.py que lee el .env de la raiz (GOOGLE_API_KEY, GOOGLE_MODEL, GOOGLE_EMBEDDINGS_MODEL, REDIS_URL, BUSQUEDA_API_KEY) y expone los parametros fijos de spec.md 5.11: MODELO_LLM, TEMPERATURA_AGENTE, TEMPERATURA_RECEPCIONISTA, MODELO_EMBEDDINGS, DIMENSIONES, N_POR_DEFECTO=2, K_MAX_CENTROS=6, MAX_ITERACIONES=10, BUSQUEDA_MODO=instantanea, ESCENARIO_POR_DEFECTO=default. Es el unico archivo que toca os.environ",
+        "state.py con el TypedDict del estado compartido (spec.md 5.4): messages, ruta, solicitud, prevision_preguntada, datos_personales_detectados, centros, identificaciones, cotizaciones, observaciones, alertas, rechazos, iteraciones, motivo_parada, reporte, verificacion",
+        "schemas.py con los modelos Pydantic de spec.md 5.5: Solicitud, Centro, ExamenCentro, Identificacion, Cotizacion, Reporte, Escenario, Evento, Instantanea, CasoGoldenSet, PruebaSeguridad. El precio y la hora son submodelos con discriminador (tipo/estado) para respetar RF-16 y RF-17",
+        "services/llm.py que construye ChatGoogleGenerativeAI desde config.py, con temperatura parametrizable y salida estructurada",
+        "requirements.txt con langgraph, langchain, langchain-google-genai, langchain-community, redis, redisvl, pypdf, pydantic, python-dotenv, httpx y (para scripts) nbformat",
+        ".env.example con las 5 variables sin valores reales",
+        ".gitignore que excluye .env, .venv, __pycache__ y resultados/",
+        "README.md con instalacion y ejecucion",
+        ".venv creado con el interprete del sistema operativo detectado"
+      ],
+      "verificacion": [
+        "El .venv existe y las dependencias de requirements.txt instalan sin error",
+        "python -c 'import config' funciona y devuelve la configuracion no sensible",
+        "python -c 'import schemas, state, services.llm' funciona",
+        "El .env.example lista las 5 variables y no contiene valores reales",
+        "No hay claves ni secretos escritos en el codigo (busqueda en el repositorio sin resultados)"
+      ]
+    },
+    {
+      "id": "02-datos-simulador",
+      "nombre": "Datos de prueba versionados (F1)",
+      "estado": "hecho",
+      "agente": "implementator",
+      "depende_de": ["01-estructura-base"],
+      "descripcion": "Todo dato de prueba se escribe una vez y se carga siempre. Nada se genera durante la ejecucion del agente ni del notebook (RF-39).",
+      "entregables": [
+        "prompts/prompt_generador_centro_examenes.py con el prompt parametrizable (especialidad, ciudad, comuna, examenes) y el contrato minimo de titulos de spec.md 5.9: 'Examen: <nombre> | Codigo: <codigo>' seguido de Descripcion:, Proposito:, Preparacion:, Requisitos:, Precio:",
+        "scripts/generar_documentos.py que produce los PDF con el prompt generador",
+        "data/documentos/ con >= 3 PDF de centros de Talca (oftalmologia: curvimetria, medicion de glaucoma, fondo de ojo), incluido el caso 'mismo nombre, distinto proposito' para curvimetria",
+        "data/revision_documentos.md con la lista de chequeo revisada a mano de cada PDF (A1) y la verificacion del telefono publico (A2)",
+        "scripts/capturar_instantanea.py que consulta la web (modo en vivo) y guarda el resultado",
+        "data/instantaneas/talca-oftalmologia.json segun el formato de spec.md 5.5",
+        "data/eventos.json con los seis eventos (RF-34) y quien los resuelve (recepcionista o codigo)",
+        "data/escenarios/ con ~6 escenarios (default, no_contesta, cortada_y_suspendido, agenda, intenta_agendar, inyeccion) segun RF-36 y las reglas de combinacion RF-35; fecha simulada fija, instantanea, horas por centro y examen, eventos. Existe default",
+        "data/ciudades_chile.json con la lista versionada de comunas y ciudades de Chile [P-13]"
+      ],
+      "verificacion": [
+        "Existen >= 3 PDF y cada uno tiene su registro de revision aprobado en data/revision_documentos.md",
+        "Todos los JSON cargan con json.load y cumplen su esquema de spec.md 5.5",
+        "Revisión manual registrada de que los escenarios cumplen las reglas de combinacion y de que cada proxima hora respeta el documento del centro (RF-37)",
+        "Existe data/escenarios/default.json",
+        "Ningun dato de prueba se genera durante la ejecucion (no se invoca el prompt generador ni la busqueda en vivo desde el agente)"
+      ]
+    },
+    {
+      "id": "03-grafo-minimo",
+      "nombre": "Primer grafo: router + respuesta directa + consolidacion",
+      "estado": "hecho",
+      "agente": "implementator",
+      "depende_de": ["02-datos-simulador"],
+      "descripcion": "El grafo mas pequeno que ya se puede ejecutar. El router clasifica en las 4 rutas finales desde el principio; respuesta_directa esta implementada; el resto de la ruta de cotizacion cae en un nodo temporal 'agente_placeholder'. Asi el proyecto es ejecutable en todo momento.",
+      "entregables": [
+        "nodes/router.py con salida estructurada (with_structured_output) sobre la ruta (cotizar | info_publicada | respuesta_directa | fuera_de_alcance) y los campos de Solicitud (necesidad, necesidad_ambigua, especialidad, ciudad, prevision, N), mas datos_personales y motivo [P-14]. Fallback a respuesta_directa",
+        "nodes/respuesta_directa.py (LLM) para saludo, que puede hacer, limites, sintomas agudos y pedido de datos faltantes",
+        "nodes/agente_placeholder.py (temporal, se retira en 05) que avisa que la cotizacion aun no esta disponible y sigue a consolidacion",
+        "nodes/consolidar.py (stub) que arma un reporte minimo",
+        "nodes/responder.py (LLM) que redacta la respuesta desde el reporte",
+        "nodes/verificador.py (passthrough por ahora; se completa en 07)",
+        "main.py con el StateGraph START -> router -> arista condicional -> (respuesta_directa -> END | agente_placeholder -> consolidar -> responder -> verificador -> END), el grafo expuesto como simbolo importable (app y build_graph) y el bucle de consola dentro de if __name__ == '__main__'",
+        "prompts/seguridad.py con los bloques universal y del agente [P-07], prompts/router_prompt.py, prompts/respuesta_directa_prompt.py, prompts/responder_prompt.py"
+      ],
+      "verificacion": [
+        "El grafo compila y se importa desde main.py sin lanzar el bucle de consola",
+        "Un saludo ('hola, que haces?') recorre router -> respuesta_directa y responde sin herramientas",
+        "Una consulta de cotizacion recorre router -> agente_placeholder -> consolidar -> responder -> verificador y devuelve una respuesta sin romper",
+        "El router extrae los campos de Solicitud del caso ancla ('medicion de glaucoma para mi mama en Talca, Fonasa')"
+      ]
+    },
+    {
+      "id": "04-ingesta-simulador",
+      "nombre": "Ingesta en Redis y llamada simulada (F2)",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["03-grafo-minimo"],
+      "descripcion": "El banco de pruebas: documentos fragmentados y cargados en el Redis del curso, y la llamada simulada (llamador de codigo + recepcionista LLM) con eventos e interpretacion validada.",
+      "entregables": [
+        "services/redis_store.py con el cliente del Redis del curso (REDIS_URL) y el indice cotizador_centros_v1 (prefijo cotizador:frag) con campos centro_id, codigo_examen, seccion, texto, fuente, embedding",
+        "services/embeddings.py con el modelo de embeddings de config.py",
+        "services/ingesta.py: PDF -> texto por pagina -> limpieza -> fragmentos por seccion -> embeddings -> Redis (spec.md 5.9), idempotente, extrayendo por codigo la lista de examenes de cada centro (ExamenCentro) desde los titulos fijos",
+        "scripts/ingesta.py como paso de preparacion ejecutable",
+        "services/simulador.py con el llamador (codigo): guion de objetivos con el nombre del examen en ese centro y la prevision; nunca entrega datos personales ni acepta reservas (RF-19)",
+        "agents/recepcionista.py (LLM) que responde solo con los fragmentos de su centro, la agenda del escenario y los eventos asignados; con validador de fidelidad [P-05] (cada precio y hora existe en su fuente; si no, regenera una vez y usa plantilla)",
+        "Eventos resueltos por codigo: 'no contesta' (sin conversacion) y 'llamada cortada' (termina tras el turno indicado)",
+        "agents/interpretador.py (LLM) que convierte la transcripcion en Cotizacion, con validacion por codigo [P-06] (cada valor distinto de 'no confirmado' aparece en la transcripcion)",
+        "prompts/recepcionista_prompt.py y prompts/interpretar_prompt.py"
+      ],
+      "verificacion": [
+        "El indice existe en el Redis del curso y cada fragmento tiene centro_id, codigo_examen y seccion (RF-31)",
+        "La lista de examenes por centro es no vacia y con sus cuatro campos (RF-12)",
+        "Cada uno de los seis eventos produce su efecto en una llamada de prueba (RF-34)",
+        "En 20 llamadas de prueba no hay ningun valor de precio u hora sin fuente (RF-32, [P-05])",
+        "La ingesta es idempotente: una segunda ejecucion no recarga"
+      ]
+    },
+    {
+      "id": "05-react-herramientas",
+      "nombre": "Las 4 herramientas, el ciclo ReAct y la condicion de parada (F3, base)",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["04-ingesta-simulador"],
+      "descripcion": "El nucleo del agente: herramientas con validacion en codigo, ciclo ReAct del agente, parada por codigo y consolidacion real del reporte. Reemplaza el nodo temporal y cierra el flujo central.",
+      "entregables": [
+        "tools/buscar_centros.py (modo instantanea por defecto, en vivo opcional), con validacion de ciudad de Chile [P-13], maximo K centros [P-02] y deteccion de instrucciones en fragmento_web (RF-08, RF-09, RF-44)",
+        "tools/identificar_examen.py que usa la lista de examenes (ingesta) + LLM de identificacion, con veredicto coincide | dudoso | no_coincide | sin_documento y justificacion (RF-11, RF-12)",
+        "tools/consultar_centro.py que ejecuta la llamada simulada y registra la Cotizacion, tomando la prevision del codigo",
+        "tools/consultar_documentos.py (RAG) con filtros por centro_id y codigo_examen y sin precios en los fragmentos [P-04] (RF-28, RF-29)",
+        "Un registro de herramientas: el LLM ve solo estos 4 esquemas; cualquier otro nombre se rechaza (spec.md 5.6)",
+        "nodes/herramientas.py que valida argumentos en codigo antes de ejecutar, agrega observaciones y cuenta iteraciones; devuelve {'error': 'Rechazado por validacion: <motivo>'} y registra el rechazo",
+        "nodes/agente.py (LLM con herramientas): ciclo ReAct que decide que herramienta pedir y cuando parar",
+        "Parada por codigo: consultar_centro se rechaza si ya hay N comparables; al llegar a MAX_ITERACIONES se va a consolidar aunque el LLM quiera seguir, y los pedidos pendientes reciben 'no ejecutado: tope'",
+        "nodes/consolidar.py real: reporte (comparables, dudosos, descartados, criterio_de_orden [P-03], trayectoria) y motivo_parada (spec.md 5.10)",
+        "nodes/responder.py real (LLM): redacta la respuesta con las tres partes (comparables, para confirmar, descartados) y el aviso de N por defecto y de datos simulados [P-10]",
+        "Rama info_publicada: router -> agente -> buscar_centros (para centro_id) -> consultar_documentos -> respuesta con fuente",
+        "prompts/agente_prompt.py y prompts/identificacion_prompt.py",
+        "Eliminado nodes/agente_placeholder.py y su registro en el grafo"
+      ],
+      "verificacion": [
+        "El caso ancla corre de punta a punta con traza legible (pedido -> observacion -> decision -> parada)",
+        "La prueba de tope con MAX_ITERACIONES reducido consolida con motivo 'tope_iteraciones'",
+        "La traza no muestra consultar_centro sobre centros dudosos o no_coincide ni fuera del maximo K",
+        "La rama de informacion publicada usa consultar_documentos y NO consultar_centro",
+        "Ninguna herramienta fuera de las cuatro puede ejecutarse"
+      ]
+    },
+    {
+      "id": "06-seguridad-privacidad",
+      "nombre": "Seguridad, privacidad y contenido externo",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["05-react-herramientas"],
+      "descripcion": "Endurecer el agente: bloques de seguridad en las 7 llamadas, privacidad del router, enmascarado de RUT, contenido externo como dato y derivacion de sintomas agudos.",
+      "entregables": [
+        "Bloque universal en las 7 llamadas (router, agente, identificacion, interpretar, responder, respuesta_directa, recepcionista) y bloque del agente en las 6 del lado del agente [P-07]",
+        "Privacidad: el router solo extrae necesidad, ciudad, prevision y N; deteccion de RUT por expresion regular y de nombre o diagnostico por el router (datos_personales_detectados); aviso fijo de que no se necesita (RF-43)",
+        "Enmascarado del RUT en el mensaje antes de guardarlo en el historial [P-01]",
+        "Validacion de argumentos: ningun argumento contiene RUT ni otro dato personal detectado",
+        "Contenido externo = dato, no instruccion: deteccion en resultados web, fragmentos y turnos de la recepcionista; se omiten y se registra alerta (RF-44)",
+        "Lista cerrada de los tres sintomas de alerta con mensaje fijo de derivacion a urgencias [P-08] (RF-42)",
+        "Forma de responder ante un limite: breve, nombra el limite, ofrece lo que si puede, sin repetir la instruccion indebida ni sermonear (RF-45)",
+        "Distincion examen vs. diagnostico del paciente al extraer la necesidad [P-09]"
+      ],
+      "verificacion": [
+        "S1-S6 aprobadas (spec.md 7.4): sin acciones prohibidas, sin argumentos con datos personales, la respuesta declara el limite",
+        "En S4 el RUT esta ausente de la solicitud, de los argumentos y del historial",
+        "En S5 la transcripcion no contiene el nombre ni la aceptacion de la hora",
+        "En S6 hay alerta en la traza y la instruccion no se sigue",
+        "RF-41: una ciudad extranjera se rechaza"
+      ]
+    },
+    {
+      "id": "07-verificador",
+      "nombre": "Verificador de salida (F5)",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["06-seguridad-privacidad"],
+      "descripcion": "Antes de responder, cada dato del reporte debe aparecer en una observacion; el verificador tambien revisa el texto redactado [P-11].",
+      "entregables": [
+        "nodes/verificador.py completo: reemplaza por 'no confirmado' todo dato del reporte sin respaldo en una observacion (RF-24) y retira recomendaciones (RF-26)",
+        "Verificacion del texto de responder (LLM), no solo del reporte armado en codigo [P-11]",
+        "Registro del veredicto, los valores corregidos y el texto original en el estado"
+      ],
+      "verificacion": [
+        "Prueba benigna: el caso normal se aprueba sin cambios",
+        "Prueba adversarial: un dato inyectado en el texto queda 'no confirmado'",
+        "Prueba adversarial: una frase 'le recomiendo' es retirada"
+      ]
+    },
+    {
+      "id": "08-historial",
+      "nombre": "Historial simple entre turnos (RF-47)",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["07-verificador"],
+      "descripcion": "El mismo hilo reutiliza ciudad y prevision del turno anterior sin volver a pedirlos (criterio 6; spec.md 7.3).",
+      "entregables": [
+        "Checkpointer en memoria (MemorySaver) configurado por hilo en main.py",
+        "Reenvio del historial visible (mensajes del usuario y respuestas finales) al router y al agente",
+        "prevision_preguntada persiste entre turnos para no preguntar dos veces (RF-05)",
+        "Reuso de ciudad y prevision desde el historial, sin datos personales"
+      ],
+      "verificacion": [
+        "En el mismo hilo, turno 1 'necesito la medicion de glaucoma en Talca, soy Fonasa' y turno 2 'y un fondo de ojo?' reutilizan ciudad = Talca y prevision = Fonasa",
+        "No se vuelve a preguntar la prevision",
+        "Las consultas del turno 2 usan esa prevision"
+      ]
+    },
+    {
+      "id": "09-robustez",
+      "nombre": "Casos limite y manejo de errores",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["08-historial"],
+      "descripcion": "Endurecer el agente antes de medirlo con el golden set.",
+      "entregables": [
+        "Fallo de red (busqueda en vivo), Redis caido o timeout del LLM: mensaje util al usuario, sin traceback crudo y sin tumbar el grafo",
+        "Respuesta vacia de una herramienta: consolidar lo dice en vez de inventar datos",
+        "Necesidad ambigua, sin ciudad o fuera de Chile: respuesta_directa pide o limita, sin herramientas",
+        "Entradas vacias o de una palabra no rompen el router",
+        "Menos de N comparables, ningun centro, ninguno contesta: se informa con el motivo (RF-23)",
+        "Terminacion: ningun caso supera el tope; todos llegan a END (RNF-02)"
+      ],
+      "verificacion": [
+        "Con una busqueda en vivo apuntando a una URL invalida, el agente responde con un mensaje claro",
+        "Un caso sin centros devuelve 'sin_centros' sin reporte vacio",
+        "Una entrada vacia se maneja sin excepcion y siempre llega a END"
+      ]
+    },
+    {
+      "id": "10-documentacion",
+      "nombre": "README y ficha final",
+      "estado": "pendiente",
+      "agente": "implementator",
+      "depende_de": ["09-robustez"],
+      "descripcion": "Cerrar la documentacion con el proyecto ya terminado.",
+      "entregables": [
+        "README.md con: problema y criterio de exito, flujo del grafo, instalacion por sistema operativo, ejecucion, configuracion, datos de prueba y como correr el golden set",
+        "Ficha del modelo: ID exacto de Gemini, temperatura y parametros, modelo de embeddings y dimensiones (DA-03)",
+        "spec.md e intent.md copiados dentro de cotizador-examenes/",
+        ".env.example verificado contra lo que config.py lee de verdad",
+        "requirements.txt verificado contra lo que se importa de verdad",
+        "Documentados los valores definitivos de K y MAX_ITERACIONES (DA-11) y la condicion de parada"
+      ],
+      "verificacion": [
+        "Siguiendo solo el README, el proyecto se instala y arranca desde cero (RNF-05)",
+        "Toda variable que config.py lee esta en .env.example y viceversa",
+        "Todo paquete importado esta en requirements.txt"
+      ]
+    },
+    {
+      "id": "11-validacion-golden-set",
+      "nombre": "Golden set G01-G16 y pruebas de seguridad S1-S6",
+      "estado": "pendiente",
+      "agente": "validator",
+      "depende_de": ["10-documentacion"],
+      "descripcion": "Lo ejecuta el agente validator, no el implementator. Detalle completo en opencode/agents/validator.md.",
+      "entregables": [
+        "cotizador-examenes/validacion/golden_set.json con los casos G01-G16 (spec.md 7.2)",
+        "cotizador-examenes/validacion/seguridad.json con S1-S6 (spec.md 7.4)",
+        "cotizador-examenes/validacion/run_golden.py y run_seguridad.py",
+        "cotizador-examenes/validacion/resultados_{fecha}.xlsx con las hojas Detalle, Resumen y Fallos"
+      ],
+      "verificacion": [
+        "El golden set pasa 100 % en dos corridas consecutivas (P-12): los campos verificables coinciden",
+        "El resumen da el acierto por dimension (herramientas, identificacion, interpretacion, parada, seguridad), no solo el total",
+        "Ningun caso se elimino; los fallidos se corrigieron y se re-ejecutaron (RNF-09)"
+      ]
+    },
+    {
+      "id": "12-notebook-estudio",
+      "nombre": "Notebook de entrega y estudio",
+      "estado": "pendiente",
+      "agente": "notebook",
+      "depende_de": ["10-documentacion"],
+      "descripcion": "Lo ejecuta el agente notebook, no el implementator. Detalle completo en opencode/agents/notebook.md.",
+      "entregables": [
+        "cotizador-examenes/notebooks/cotizador_examenes.ipynb con las secciones de spec.md 7.7"
+      ],
+      "verificacion": [
+        "El notebook es valido segun nbformat y se ejecuta de arriba abajo",
+        "Las salidas estan vacias y no contiene credenciales",
+        "Los prompts se imprimen y la tabla de verificacion final existe"
+      ]
+    }
+  ]
+}

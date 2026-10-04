@@ -10,12 +10,21 @@ from langchain_core.messages import AIMessage
 
 import services.llm
 from prompts.respuesta_directa_prompt import construir_mensajes
-from schemas import Solicitud
+from schemas import Prevision, Solicitud
+from services import sintomas
 
 
 def _historial_visible(messages: list) -> list:
     visibles = [m for m in messages if getattr(m, "type", "") in ("human", "ai")]
     return visibles or messages[-1:]
+
+
+def _ultimo_usuario(messages: list) -> str:
+    for m in reversed(messages):
+        if getattr(m, "type", "") == "human":
+            contenido = getattr(m, "content", "")
+            return contenido if isinstance(contenido, str) else str(contenido)
+    return ""
 
 
 def _determinar_motivo(state: dict) -> str:
@@ -34,7 +43,27 @@ def _determinar_motivo(state: dict) -> str:
     return "falta_informacion" if faltantes else "respuesta_directa"
 
 
+def _pidiendo_prevision(state: dict) -> bool:
+    sol: Solicitud | None = state.get("solicitud")
+    return (
+        state.get("ruta") == "cotizar"
+        and sol is not None
+        and sol.prevision == Prevision.no_indicada
+        and not state.get("prevision_preguntada")
+    )
+
+
 def _caso(state: dict) -> str:
+    if sintomas.detectar(_ultimo_usuario(state.get("messages", []))):
+        return (
+            "síntoma agudo: entrega el mensaje fijo de derivación a urgencias "
+            f'("{sintomas.MENSAJE_URGENCIAS}") y ofrece seguir con la cotización.'
+        )
+    if _pidiendo_prevision(state):
+        return (
+            "pide la previsión una sola vez (Fonasa, Isapre o particular); deja claro que si "
+            "no la sabe se puede continuar igual."
+        )
     ruta = state.get("ruta")
     sol: Solicitud | None = state.get("solicitud")
     if ruta == "fuera_de_alcance":
@@ -60,4 +89,13 @@ def nodo_respuesta_directa(state: dict) -> dict:
     mensajes = construir_mensajes(_historial_visible(state.get("messages", [])), _caso(state))
     llm = services.llm.llm_agente()
     respuesta = _a_ai(llm.invoke(mensajes))
-    return {"messages": [respuesta], "motivo_parada": _determinar_motivo(state)}
+
+    if sintomas.detectar(_ultimo_usuario(state.get("messages", []))):
+        texto = respuesta.content if isinstance(respuesta.content, str) else str(respuesta.content)
+        if sintomas.MENSAJE_URGENCIAS not in texto:
+            respuesta = AIMessage(content=f"{sintomas.MENSAJE_URGENCIAS} {texto}")
+
+    salida: dict = {"messages": [respuesta], "motivo_parada": _determinar_motivo(state)}
+    if _pidiendo_prevision(state):
+        salida["prevision_preguntada"] = True
+    return salida

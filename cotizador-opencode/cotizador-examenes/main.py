@@ -3,22 +3,27 @@
 Construye el StateGraph desde START hasta END y expone el grafo compilado como símbolo
 importable (`app` y `build_graph()`). No contiene lógica de negocio. El bucle de consola vive
 dentro de `if __name__ == "__main__":`.
-
-Etapa actual (paso `03-grafo-minimo`): router + respuesta_directa + agente_placeholder +
-consolidar + responder + verificador. Las herramientas y el ciclo ReAct llegan en el paso `05`.
 """
 
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph
 
-from nodes.agente_placeholder import nodo_agente_placeholder
+import config
+from langgraph.checkpoint.memory import MemorySaver
+from nodes.agente import nodo_agente
 from nodes.consolidar import nodo_consolidar
+from nodes.herramientas import nodo_herramientas
 from nodes.responder import nodo_responder
 from nodes.respuesta_directa import nodo_respuesta_directa
 from nodes.router import nodo_router
 from nodes.verificador import nodo_verificador
+from schemas import Prevision
 from state import Estado
+
+# Número de rondas de herramientas permitidas (spec.md §5.10). El agente puede pedir varias
+# herramientas por ronda; el tope acota el ciclo.
+MAX_RONDAS_HERRAMIENTAS = config.MAX_ITERACIONES
 
 
 def ruta_condicional(state: Estado) -> str:
@@ -39,8 +44,24 @@ def ruta_condicional(state: Estado) -> str:
         if falta_datos:
             return "respuesta_directa"
 
-    # En el paso 05 este destino pasa a ser el nodo `agente` (ciclo ReAct).
-    return "agente_placeholder"
+    if (
+        ruta == "cotizar"
+        and solicitud is not None
+        and solicitud.prevision == Prevision.no_indicada
+        and not state.get("prevision_preguntada")
+    ):
+        return "respuesta_directa"  # pregunta la previsión una sola vez (RF-05)
+
+    return "agente"
+
+
+def despues_agente(state: Estado) -> str:
+    """El agente sigue al ciclo de herramientas o consolida (spec.md §5.10)."""
+    ultimo = state["messages"][-1]
+    tiene_herramientas = bool(getattr(ultimo, "tool_calls", None))
+    if tiene_herramientas and state.get("iteraciones", 0) < MAX_RONDAS_HERRAMIENTAS:
+        return "herramientas"
+    return "consolidar"
 
 
 def build_graph():
@@ -48,7 +69,8 @@ def build_graph():
 
     grafo.add_node("router", nodo_router)
     grafo.add_node("respuesta_directa", nodo_respuesta_directa)
-    grafo.add_node("agente_placeholder", nodo_agente_placeholder)
+    grafo.add_node("agente", nodo_agente)
+    grafo.add_node("herramientas", nodo_herramientas)
     grafo.add_node("consolidar", nodo_consolidar)
     grafo.add_node("responder", nodo_responder)
     grafo.add_node("verificador", nodo_verificador)
@@ -57,19 +79,20 @@ def build_graph():
     grafo.add_conditional_edges(
         "router",
         ruta_condicional,
-        {
-            "respuesta_directa": "respuesta_directa",
-            "agente_placeholder": "agente_placeholder",
-        },
+        {"respuesta_directa": "respuesta_directa", "agente": "agente"},
     )
-
+    grafo.add_conditional_edges(
+        "agente",
+        despues_agente,
+        {"herramientas": "herramientas", "consolidar": "consolidar"},
+    )
+    grafo.add_edge("herramientas", "agente")
     grafo.add_edge("respuesta_directa", END)
-    grafo.add_edge("agente_placeholder", "consolidar")
     grafo.add_edge("consolidar", "responder")
     grafo.add_edge("responder", "verificador")
     grafo.add_edge("verificador", END)
 
-    return grafo.compile()
+    return grafo.compile(checkpointer=MemorySaver())
 
 
 app = build_graph()
@@ -81,9 +104,10 @@ def _texto(mensaje) -> str:
 
 
 def _bucle_consola() -> None:
-    from langchain_core.messages import HumanMessage
+    from services import privacidad
 
     print("Cotizador de exámenes médicos (escriba 'salir' para terminar).")
+    runtime = {"configurable": {"thread_id": "consola"}}
     while True:
         try:
             texto = input("usted> ").strip()
@@ -94,7 +118,11 @@ def _bucle_consola() -> None:
             break
         if not texto:
             continue
-        estado = app.invoke({"messages": [HumanMessage(content=texto)]})
+        entrada = privacidad.preparar_entrada(texto)
+        estado = app.invoke(
+            {"messages": [entrada], "escenario_id": config.ESCENARIO_POR_DEFECTO},
+            runtime,
+        )
         print("agente>", _texto(estado["messages"][-1]))
 
 

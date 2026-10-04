@@ -27,6 +27,9 @@ class Estado(TypedDict, total=False):
     # Ruta elegida por el router.
     ruta: Ruta
 
+    # Escenario activo del turno (para que las herramientas lean el mundo correcto).
+    escenario_id: str
+
     # Solicitud extraída (necesidad, ciudad, previsión, N).
     solicitud: Solicitud
 

@@ -1,7 +1,10 @@
 {
   "proyecto": "cotizador-examenes",
   "descripcion": "Plan incremental del cotizador de examenes medicos. Un paso por ejecucion. Estados validos: 'pendiente' | 'hecho'. La especificacion completa de la implementacion esta en opencode/agents/implementator.md; los requisitos verificables, en spec.md; la fuente de verdad del producto, en intent.md.",
-  "estados_validos": ["pendiente", "hecho"],
+  "estados_validos": [
+    "pendiente",
+    "hecho"
+  ],
   "pasos": [
     {
       "id": "01-estructura-base",
@@ -35,7 +38,9 @@
       "nombre": "Datos de prueba versionados (F1)",
       "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["01-estructura-base"],
+      "depende_de": [
+        "01-estructura-base"
+      ],
       "descripcion": "Todo dato de prueba se escribe una vez y se carga siempre. Nada se genera durante la ejecucion del agente ni del notebook (RF-39).",
       "entregables": [
         "prompts/prompt_generador_centro_examenes.py con el prompt parametrizable (especialidad, ciudad, comuna, examenes) y el contrato minimo de titulos de spec.md 5.9: 'Examen: <nombre> | Codigo: <codigo>' seguido de Descripcion:, Proposito:, Preparacion:, Requisitos:, Precio:",
@@ -61,7 +66,9 @@
       "nombre": "Primer grafo: router + respuesta directa + consolidacion",
       "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["02-datos-simulador"],
+      "depende_de": [
+        "02-datos-simulador"
+      ],
       "descripcion": "El grafo mas pequeno que ya se puede ejecutar. El router clasifica en las 4 rutas finales desde el principio; respuesta_directa esta implementada; el resto de la ruta de cotizacion cae en un nodo temporal 'agente_placeholder'. Asi el proyecto es ejecutable en todo momento.",
       "entregables": [
         "nodes/router.py con salida estructurada (with_structured_output) sobre la ruta (cotizar | info_publicada | respuesta_directa | fuera_de_alcance) y los campos de Solicitud (necesidad, necesidad_ambigua, especialidad, ciudad, prevision, N), mas datos_personales y motivo [P-14]. Fallback a respuesta_directa",
@@ -83,9 +90,11 @@
     {
       "id": "04-ingesta-simulador",
       "nombre": "Ingesta en Redis y llamada simulada (F2)",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["03-grafo-minimo"],
+      "depende_de": [
+        "03-grafo-minimo"
+      ],
       "descripcion": "El banco de pruebas: documentos fragmentados y cargados en el Redis del curso, y la llamada simulada (llamador de codigo + recepcionista LLM) con eventos e interpretacion validada.",
       "entregables": [
         "services/redis_store.py con el cliente del Redis del curso (REDIS_URL) y el indice cotizador_centros_v1 (prefijo cotizador:frag) con campos centro_id, codigo_examen, seccion, texto, fuente, embedding",
@@ -109,9 +118,11 @@
     {
       "id": "05-react-herramientas",
       "nombre": "Las 4 herramientas, el ciclo ReAct y la condicion de parada (F3, base)",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["04-ingesta-simulador"],
+      "depende_de": [
+        "04-ingesta-simulador"
+      ],
       "descripcion": "El nucleo del agente: herramientas con validacion en codigo, ciclo ReAct del agente, parada por codigo y consolidacion real del reporte. Reemplaza el nodo temporal y cierra el flujo central.",
       "entregables": [
         "tools/buscar_centros.py (modo instantanea por defecto, en vivo opcional), con validacion de ciudad de Chile [P-13], maximo K centros [P-02] y deteccion de instrucciones en fragmento_web (RF-08, RF-09, RF-44)",
@@ -139,9 +150,11 @@
     {
       "id": "06-seguridad-privacidad",
       "nombre": "Seguridad, privacidad y contenido externo",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["05-react-herramientas"],
+      "depende_de": [
+        "05-react-herramientas"
+      ],
       "descripcion": "Endurecer el agente: bloques de seguridad en las 7 llamadas, privacidad del router, enmascarado de RUT, contenido externo como dato y derivacion de sintomas agudos.",
       "entregables": [
         "Bloque universal en las 7 llamadas (router, agente, identificacion, interpretar, responder, respuesta_directa, recepcionista) y bloque del agente en las 6 del lado del agente [P-07]",
@@ -164,9 +177,11 @@
     {
       "id": "07-verificador",
       "nombre": "Verificador de salida (F5)",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["06-seguridad-privacidad"],
+      "depende_de": [
+        "06-seguridad-privacidad"
+      ],
       "descripcion": "Antes de responder, cada dato del reporte debe aparecer en una observacion; el verificador tambien revisa el texto redactado [P-11].",
       "entregables": [
         "nodes/verificador.py completo: reemplaza por 'no confirmado' todo dato del reporte sin respaldo en una observacion (RF-24) y retira recomendaciones (RF-26)",
@@ -182,9 +197,11 @@
     {
       "id": "08-historial",
       "nombre": "Historial simple entre turnos (RF-47)",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["07-verificador"],
+      "depende_de": [
+        "07-verificador"
+      ],
       "descripcion": "El mismo hilo reutiliza ciudad y prevision del turno anterior sin volver a pedirlos (criterio 6; spec.md 7.3).",
       "entregables": [
         "Checkpointer en memoria (MemorySaver) configurado por hilo en main.py",
@@ -201,9 +218,11 @@
     {
       "id": "09-robustez",
       "nombre": "Casos limite y manejo de errores",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["08-historial"],
+      "depende_de": [
+        "08-historial"
+      ],
       "descripcion": "Endurecer el agente antes de medirlo con el golden set.",
       "entregables": [
         "Fallo de red (busqueda en vivo), Redis caido o timeout del LLM: mensaje util al usuario, sin traceback crudo y sin tumbar el grafo",
@@ -222,9 +241,11 @@
     {
       "id": "10-documentacion",
       "nombre": "README y ficha final",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "implementator",
-      "depende_de": ["09-robustez"],
+      "depende_de": [
+        "09-robustez"
+      ],
       "descripcion": "Cerrar la documentacion con el proyecto ya terminado.",
       "entregables": [
         "README.md con: problema y criterio de exito, flujo del grafo, instalacion por sistema operativo, ejecucion, configuracion, datos de prueba y como correr el golden set",
@@ -243,9 +264,11 @@
     {
       "id": "11-validacion-golden-set",
       "nombre": "Golden set G01-G16 y pruebas de seguridad S1-S6",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "validator",
-      "depende_de": ["10-documentacion"],
+      "depende_de": [
+        "10-documentacion"
+      ],
       "descripcion": "Lo ejecuta el agente validator, no el implementator. Detalle completo en opencode/agents/validator.md.",
       "entregables": [
         "cotizador-examenes/validacion/golden_set.json con los casos G01-G16 (spec.md 7.2)",
@@ -262,9 +285,11 @@
     {
       "id": "12-notebook-estudio",
       "nombre": "Notebook de entrega y estudio",
-      "estado": "pendiente",
+      "estado": "hecho",
       "agente": "notebook",
-      "depende_de": ["10-documentacion"],
+      "depende_de": [
+        "10-documentacion"
+      ],
       "descripcion": "Lo ejecuta el agente notebook, no el implementator. Detalle completo en opencode/agents/notebook.md.",
       "entregables": [
         "cotizador-examenes/notebooks/cotizador_examenes.ipynb con las secciones de spec.md 7.7"

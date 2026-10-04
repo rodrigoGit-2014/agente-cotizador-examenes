@@ -252,3 +252,47 @@ class PruebaSeguridad(BaseModel):
     escenario: str
     entrada: str
     criterios: dict = Field(default_factory=dict)
+
+
+# --- Ingesta y RAG --------------------------------------------------------------
+
+class Fragmento(BaseModel):
+    """Un fragmento de un documento de centro cargado en Redis (`spec.md` §5.9)."""
+
+    centro_id: str
+    codigo_examen: str = "general"  # o el código interno del examen
+    seccion: str
+    texto: str
+    fuente: str
+    embedding: Optional[list[float]] = None
+
+
+class ResultadoFragmento(BaseModel):
+    texto: str
+    seccion: str = ""
+    codigo_examen: str = ""
+    fuente: str = ""
+    similitud: Optional[float] = None
+
+
+# --- Salidas estructuradas de los LLM ------------------------------------------
+
+class SalidaIdentificacion(BaseModel):
+    """Salida del LLM de identificación (sin el centro_id, que lo pone el código)."""
+
+    veredicto: Veredicto = "dudoso"
+    codigo_examen: Optional[str] = None
+    nombre_examen_centro: Optional[str] = None
+    justificacion: str = ""
+
+
+class SalidaInterpretacion(BaseModel):
+    """Salida del LLM que interpreta una transcripción de llamada."""
+
+    contesto: bool = False
+    realiza: Realiza = "no_confirmado"
+    precio: Precio = Field(default_factory=Precio)
+    modalidad: Modalidad = "no_especificada"
+    proxima_hora: ProximaHora = Field(default_factory=ProximaHora)
+    preparacion: Preparacion = Field(default_factory=Preparacion)
+    reserva: Reserva = Field(default_factory=Reserva)

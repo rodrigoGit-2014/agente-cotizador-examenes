@@ -10,6 +10,7 @@ import config
 import services.llm
 from prompts.router_prompt import construir_mensajes
 from schemas import SalidaRouter, Solicitud
+from services import privacidad
 
 TIPOS_VISIBLES = ("human", "ai")
 
@@ -18,6 +19,13 @@ def _historial_visible(messages: list) -> list:
     """Solo los mensajes del usuario y las respuestas finales."""
     visibles = [m for m in messages if getattr(m, "type", "") in TIPOS_VISIBLES]
     return visibles or messages[-1:]
+
+
+def _hay_datos_personales(messages: list) -> bool:
+    for m in messages:
+        if getattr(m, "type", "") == "human" and privacidad.contiene_rut(getattr(m, "content", "")):
+            return True
+    return False
 
 
 def _normalizar_salida(salida) -> SalidaRouter:
@@ -51,5 +59,6 @@ def nodo_router(state: dict) -> dict:
     return {
         "ruta": ruta,
         "solicitud": solicitud,
-        "datos_personales_detectados": bool(salida.datos_personales),
+        "datos_personales_detectados": bool(salida.datos_personales)
+        or _hay_datos_personales(state.get("messages", [])),
     }

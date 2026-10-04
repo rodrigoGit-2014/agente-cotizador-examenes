@@ -24,5 +24,11 @@ def nodo_responder(state: dict) -> dict:
     reporte: Reporte = state.get("reporte") or Reporte(N=config.N_POR_DEFECTO)
     solicitud: Solicitud = state.get("solicitud") or Solicitud()
     mensajes = construir_mensajes(reporte.model_dump_json(), solicitud.model_dump_json())
-    llm = services.llm.llm_agente()
-    return {"messages": [_a_ai(llm.invoke(mensajes))]}
+    try:
+        llm = services.llm.llm_agente()
+        respuesta = _a_ai(llm.invoke(mensajes))
+    except Exception as exc:  # LLM caído: respuesta de respaldo, sin traceback al usuario
+        respuesta = AIMessage(
+            content="No pude redactar la respuesta en este momento. Intente nuevamente en unos instantes."
+        )
+    return {"messages": [respuesta]}

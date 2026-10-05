@@ -359,7 +359,7 @@ configuración, no lo elige el LLM.
 ### 5.7 Llamadas al LLM
 
 Parámetros comunes: un modelo configurado (DA-03), temperatura baja (0 a 0,2), reintentos acotados.
-Todas las instrucciones se versionan en `prompts/` y se imprimen en el notebook [PAUTA].
+Todas las instrucciones se versionan en `prompts/` y están disponibles para su revisión [PAUTA].
 
 | Llamada | Entrada | Salida | Instrucciones |
 |---|---|---|---|
@@ -638,13 +638,12 @@ comparables y sus valores, dudosos, descartados, motivo de parada) deben coincid
 
 | Exigencia | Evidencia en el notebook |
 |---|---|
-| Caso y criterio de éxito | Sección inicial basada en §1 y RF |
-| LLM real y trazabilidad | Ficha del modelo (ID, parámetros), llamada real, prompts impresos, traza legible |
-| ReAct | Caso normal con pedido → observación → decisión → parada; prueba de tope |
-| Historial | §7.3 |
-| Seguridad | §7.4 |
-| Bonos declarados | Cada uno con prueba ejecutada y reproducible (DA-06) |
-| Verificación final | Tabla con todos los criterios en ✅ después de *Restart & Run All* |
+| Caso y criterio de éxito | Portada con el caso y la forma de uso del notebook |
+| LLM real y trazabilidad | Llamada real al LLM y traza legible del paso a paso |
+| ReAct | Caso normal con pedido → observación → decisión → parada |
+| Historial | Conversación multi-turno en el mismo hilo (§7.3) |
+| Seguridad | La respuesta declara los límites y no agenda ni pide datos personales (§7.4) |
+| Verificación final | Checklist de criterios de éxito al cierre del recorrido |
 
 ---
 
@@ -848,14 +847,14 @@ base sin verificar.
 
 | Fase | Contenido | Requisitos | Terminado cuando |
 |---|---|---|---|
-| **F0. Entorno** | Repositorio, `requirements.txt` con versiones, `.env.example`, `config.py`, `llm.py`; decisiones DA-03 y DA-09 tomadas | RNF-04, RNF-05 | Una celda del notebook hace una llamada real al LLM y lee la ficha desde `config.py`; búsqueda de claves en el repositorio sin resultados |
+| **F0. Entorno** | Repositorio, `requirements.txt` con versiones, `.env.example`, `config.py`, `llm.py`; decisiones DA-03 y DA-09 tomadas | RNF-04, RNF-05 | El notebook ejecuta el agente con llamadas reales al LLM; búsqueda de claves en el repositorio sin resultados |
 | **F1. Datos** | ≥ 3 PDF revisados (corregir MiVisión, regenerar Talca, generar uno más), web snapshot de Talca, `eventos.json`, ~6 escenarios, lista de ciudades de Chile | RF-30, RF-33–38, RNF-06; A1, A2 | Lista de chequeo de cada documento aprobada; teléfonos verificados; escenarios cumplen reglas de combinación y horas (revisión registrada) |
 | **F2. Ingesta y simulador** | Extracción, fragmentos, embeddings y carga en el Redis del curso; lista de exámenes; llamador, recepcionista con validador, eventos por código, interpretar con validación | RF-12, RF-31–34, RF-15–19; P-05, P-06 | Índice cargado con metadatos; cada evento produce su efecto en una llamada de prueba; 0 valores sin fuente en 20 llamadas |
 | **F3. Núcleo ReAct (base 4,0)** | Herramientas con validaciones, router, respuesta directa, agente, consolidar, responder; parada y tope; historial; seguridad (bloques, privacidad, contenido externo) | RF-01–27, RF-41–47 | Caso normal de punta a punta con traza legible; prueba de tope; prueba de historial; S1–S6 aprobadas; reproducibilidad del caso normal en 2 corridas |
 | **F4. RAG de información publicada** | `consultar_documentos` con filtros y retiro de precios; decisión del agente | RF-28, RF-29; P-04 | Casos con y sin necesidad de recuperar se comportan como se espera; fuente citada |
 | **F5. Verificador** | Verificador de salida sobre reporte y texto; retiro de recomendaciones | RF-24, RF-26; P-11 | Pruebas benigna y adversariales aprobadas |
 | **F6. Golden set** | Casos G01–G16 con valores concretos; ejecución completa | §7.2; RNF-09 | 100 % aprobados en dos corridas consecutivas (P-12); ningún caso eliminado |
-| **F7. Notebook de entrega** | Secciones por criterio, prompts impresos, bonos declarados con su evidencia, tabla de verificación final; búsqueda en vivo opcional (DA-02) | [PAUTA]; RNF-03, RNF-05 | *Restart & Run All* en un entorno limpio con credenciales propias, sin intervención y con la tabla final en ✅ |
+| **F7. Notebook de entrega** | Portada con el caso y una conversación multi-turno que muestra la traza paso a paso, la respuesta final y el checklist de cierre | [PAUTA]; RNF-03, RNF-05 | *Restart & Run All* en un entorno limpio con credenciales propias, sin intervención |
 
 **Orden de riesgo:** F3 es la que define el piso de la nota. Si F2 se atrasa por la recepcionista LLM,
 aplicar DA-01 (c) para no bloquear F3.

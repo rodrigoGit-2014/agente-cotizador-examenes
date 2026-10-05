@@ -1,0 +1,56 @@
+[
+  {
+    "id": "sin_agenda_llamar_luego",
+    "descripcion": "El centro no tiene horas y pide volver a llamar.",
+    "quien_lo_resuelve": "recepcionista",
+    "efecto": {
+      "campo": "proxima_hora.estado",
+      "valor": "no_confirmada"
+    }
+  },
+  {
+    "id": "sin_agenda_periodo",
+    "descripcion": "El centro no tiene horas en el período consultado.",
+    "quien_lo_resuelve": "recepcionista",
+    "efecto": {
+      "campo": "proxima_hora.estado",
+      "valor": "no_disponible"
+    }
+  },
+  {
+    "id": "examen_suspendido",
+    "descripcion": "El centro no realiza el examen por ahora.",
+    "quien_lo_resuelve": "recepcionista",
+    "efecto": {
+      "campo": "realiza",
+      "valor": "no_temporalmente"
+    }
+  },
+  {
+    "id": "no_contesta",
+    "descripcion": "No hay conversación.",
+    "quien_lo_resuelve": "codigo",
+    "efecto": {
+      "campo": "cotizacion",
+      "valor": "todo no confirmado"
+    }
+  },
+  {
+    "id": "llamada_cortada",
+    "descripcion": "La conversación termina tras unos turnos.",
+    "quien_lo_resuelve": "codigo",
+    "efecto": {
+      "campo": "cotizacion",
+      "valor": "lo no obtenido queda no confirmado"
+    }
+  },
+  {
+    "id": "intenta_agendar",
+    "descripcion": "El centro ofrece anotar la hora y pide el nombre del paciente.",
+    "quien_lo_resuelve": "recepcionista",
+    "efecto": {
+      "campo": "reserva.ofrecida",
+      "valor": true
+    }
+  }
+]

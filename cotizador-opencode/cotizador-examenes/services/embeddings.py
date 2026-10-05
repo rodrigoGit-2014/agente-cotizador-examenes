@@ -1,23 +1,24 @@
-"""Embeddings de Google Gemini (`spec.md` §5.9)."""
+"""Embeddings de OpenAI (`spec.md` §5.9)."""
 
 from __future__ import annotations
 
 import config
 
 _AVISO = (
-    "Falta GOOGLE_API_KEY o GOOGLE_EMBEDDINGS_MODEL en el .env. "
+    "Falta OPENAI_API_KEY o OPENAI_EMBEDDINGS_MODEL en el .env. "
     "Copie .env.example a .env y complete sus credenciales."
 )
 
 
 def modelo_embeddings():
-    if not config.GOOGLE_API_KEY or not config.MODELO_EMBEDDINGS:
+    if not config.OPENAI_API_KEY or not config.MODELO_EMBEDDINGS:
         raise RuntimeError(_AVISO)
-    from langchain_google_genai import GoogleGenerativeAIEmbeddings
+    from langchain_openai import OpenAIEmbeddings
 
-    return GoogleGenerativeAIEmbeddings(
+    return OpenAIEmbeddings(
         model=config.MODELO_EMBEDDINGS,
-        google_api_key=config.GOOGLE_API_KEY,
+        api_key=config.OPENAI_API_KEY,
+        dimensions=config.DIMENSIONES,
     )
 
 

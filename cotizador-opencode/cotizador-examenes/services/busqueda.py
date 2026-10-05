@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 
 import config
 from schemas import Centro, Escenario, Instantanea, ResultadoBusqueda
@@ -45,6 +46,13 @@ def normalizar_telefono(telefono: str) -> str:
     return re.sub(r"\D", "", telefono or "")
 
 
+def _normalizar(texto: str) -> str:
+    """Minúsculas y sin tildes, para comparar ciudades ('Puerto Montt' == 'puerto montt')."""
+    texto = unicodedata.normalize("NFKD", texto or "")
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    return texto.strip().lower()
+
+
 def _a_centro(r: ResultadoBusqueda) -> Centro:
     return Centro(
         centro_id=normalizar_telefono(r.telefono or ""),
@@ -71,6 +79,11 @@ def buscar(
         )
 
     instantanea = cargar_instantanea(escenario.instantanea)
+    # La instantánea del escenario es de una ciudad concreta. Si se pide otra ciudad, no hay
+    # datos para ella: se devuelve vacío, en vez de mostrar centros de otra ciudad
+    # (RF-08: buscar "en la ciudad"; RF-40: agregar una ciudad = generar su instantánea).
+    if _normalizar(instantanea.ciudad) != _normalizar(ciudad):
+        return [], []
     centros: list[Centro] = []
     for r in instantanea.resultados[: config.K_MAX_CENTROS]:
         if r.fragmento_web and contiene_instruccion(r.fragmento_web):

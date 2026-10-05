@@ -15,7 +15,12 @@ from services import sintomas
 
 
 def _historial_visible(messages: list) -> list:
-    visibles = [m for m in messages if getattr(m, "type", "") in ("human", "ai")]
+    """Mensajes del usuario y respuestas finales (sin las rondas de herramientas)."""
+    visibles = [
+        m for m in messages
+        if getattr(m, "type", "") == "human"
+        or (getattr(m, "type", "") == "ai" and not getattr(m, "tool_calls", None))
+    ]
     return visibles or messages[-1:]
 
 

@@ -238,7 +238,10 @@ def ingestar(directorio: Path | None = None, forzar: bool = False) -> dict:
 
     client = redis_store.cliente()
     huella = _hash_fragmentos(fragmentos)
-    if not forzar and client.get("cotizador:ingesta_hash") == huella:
+    guardada = client.get("cotizador:ingesta_hash")
+    if isinstance(guardada, bytes):  # la conexión usa decode_responses=False
+        guardada = guardada.decode("utf-8")
+    if not forzar and guardada == huella:
         return {"fragmentos": len(fragmentos), "examenes": len(examenes),
                 "cargado": False, "motivo": "ya cargado"}
 

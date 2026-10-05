@@ -1,0 +1,40 @@
+# Entornos virtuales (se recrean con `python -m venv .venv`)
+.venv/
+venv/
+env/
+
+# Credenciales y configuración local
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Resultados de validación (se regeneran en cada corrida)
+resultados/
+resultados_*.xlsx
+
+# Caches de herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+*.swp

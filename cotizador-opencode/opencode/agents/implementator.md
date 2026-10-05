@@ -1,5 +1,5 @@
 ---
-description: Construye el cotizador de exámenes médicos con LangGraph, LangChain, Gemini y Redis (router + ReAct + simulador + RAG)
+description: Construye el cotizador de exámenes médicos con LangGraph, LangChain, OpenAI/OpenCode y Redis (router + ReAct + simulador + RAG)
 mode: subagent
 model: openai/gpt-5.6-luna
 steps: 160
@@ -182,7 +182,7 @@ cotizador-examenes/
 │   └── recepcionista.py
 │
 ├── services/               # Integraciones y servicios
-│   ├── llm.py              # ChatGoogleGenerativeAI
+│   ├── llm.py              # ChatOpenAI (OpenAI u OpenCode Zen)
 │   ├── embeddings.py       # Modelo de embeddings
 │   ├── redis_store.py      # Redis del curso (índice cotizador_centros_v1)
 │   ├── ingesta.py          # PDF → fragmentos → embeddings → Redis
@@ -398,9 +398,10 @@ Variables de entorno (en `.env.example`):
 
 | Variable | Uso |
 |---|---|
-| `GOOGLE_API_KEY` | credencial del LLM y de los embeddings |
-| `GOOGLE_MODEL` | ID exacto del modelo Gemini del curso (DA-03) |
-| `GOOGLE_EMBEDDINGS_MODEL` | ID exacto del modelo de embeddings (DA-03) |
+| `OPENAI_API_KEY` | credencial de OpenAI (embeddings y, si se elige, el LLM) |
+| `OPENAI_EMBEDDINGS_MODEL` | ID del modelo de embeddings de OpenAI (DA-03) |
+| `OPENCODE_API_KEY` | credencial de OpenCode Zen (LLM) |
+| `LLM_MODELO_AGENTE` | modelo del LLM en formato `openai:<modelo>` u `opencode:<modelo>` (DA-03) |
 | `REDIS_URL` | Redis del curso (vector store) |
 | `BUSQUEDA_API_KEY` | clave del buscador del modo en vivo (solo si se implementa; DA-02) |
 
@@ -418,9 +419,12 @@ Parámetros fijos en `config.py`:
 
 ## LLM
 
-* Proveedor: Google Gemini, vía `langchain-google-genai` (`ChatGoogleGenerativeAI`).
-* Modelo: el valor de `GOOGLE_MODEL`. Credencial: `GOOGLE_API_KEY`.
-* Embeddings: el valor de `GOOGLE_EMBEDDINGS_MODEL`.
+* Proveedor: OpenAI u OpenCode Zen, ambos vía `langchain-openai` (`ChatOpenAI`); OpenCode usa
+  `base_url=https://opencode.ai/zen/v1` (API compatible con OpenAI). El proyecto no usa otros proveedores.
+* Modelo: el valor de `LLM_MODELO_AGENTE` (`proveedor:modelo`). Credencial: `OPENAI_API_KEY` u
+  `OPENCODE_API_KEY` según el proveedor.
+* Salida estructurada con `method="function_calling"` (la soportan ambos proveedores).
+* Embeddings: OpenAI, el valor de `OPENAI_EMBEDDINGS_MODEL` con `dimensions=768`.
 
 ## Redis del curso
 
@@ -460,9 +464,9 @@ paso puede romper. Compruébalas, ejecutándolas, antes de marcar nada como `hec
 
 1. `<python> -m compileall -q cotizador-examenes` pasa sin errores (`<python>` = el intérprete del
    `.venv` según tu sistema operativo).
-2. `requirements.txt` incluye al menos: `langgraph`, `langchain`, `langchain-google-genai`, `redis`,
+2. `requirements.txt` incluye al menos: `langgraph`, `langchain`, `langchain-openai`, `redis`,
    `redisvl`, `pypdf`, `pydantic`, `python-dotenv` y el cliente HTTP que uses.
-3. `.env.example` lista las 5 variables de §9, sin valores reales.
+3. `.env.example` lista las variables de §9, sin valores reales.
 4. `main.py` no contiene lógica de negocio: solo grafo, nodos importados y punto de entrada.
 5. Existe un archivo `prompts/{nodo}_prompt.py` por cada llamada al LLM, y los bloques de seguridad viven
    solo en `prompts/seguridad.py`.

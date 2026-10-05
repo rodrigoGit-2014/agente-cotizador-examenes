@@ -70,7 +70,7 @@ los demás para dar un informe completo.
 5. **Redis y RAG.** Comprueba que el índice `cotizador_centros_v1` existe en el Redis del curso y que
    sus fragmentos tienen `centro_id`, `codigo_examen` y `seccion`. Haz una consulta filtrada por un
    `centro_id` y verifica que no devuelve precios al agente [P-04].
-6. **Conectividad del LLM.** Comprueba que `ChatGoogleGenerativeAI` se construye desde `config.py` y que
+6. **Conectividad del LLM.** Comprueba que `ChatOpenAI` (OpenAI u OpenCode) se construye desde `config.py` y que
    una llamada real responde. Verifica que no hay claves escritas en el código y que nada fuera de
    `config.py` lee variables de entorno.
 7. **Ruteo.** Ejecuta el agente en modo debug con una entrada representativa por ruta y verifica por la

@@ -1,7 +1,7 @@
 # Arquitectura del proyecto
 
 Este proyecto desarrolla el **Cotizador de exámenes médicos**, un agente de inteligencia artificial
-construido con Python, LangGraph y LangChain (LLM Google Gemini, RAG sobre el Redis del curso).
+construido con Python, LangGraph y LangChain (LLM vía OpenAI u OpenCode Zen, RAG sobre el Redis del curso).
 
 El proyecto activo es **`cotizador-examenes/`**. Su especificación completa — flujo del grafo, router,
 herramientas, simulador, ingesta y estructura de carpetas — vive en `opencode/agents/implementator.md`
@@ -49,11 +49,11 @@ Equivalencias rápidas:
 * Los nodos se implementan en `nodes/`.
 * Las herramientas del agente (las 4 del contrato) en `tools/`.
 * Los subagentes LLM especializados (identificador, interpretador, recepcionista) en `agents/`.
-* Los servicios e integraciones (LLM Gemini, embeddings, Redis, búsqueda, simulador, ingesta) en `services/`.
+* Los servicios e integraciones (LLM OpenAI/OpenCode, embeddings, Redis, búsqueda, simulador, ingesta) en `services/`.
 * Los prompts se mantienen separados del código, en `prompts/{nodo}_prompt.py` — un archivo por cada
   llamada al LLM. Los bloques de seguridad compartidos viven en `prompts/seguridad.py`.
 * Las configuraciones se centralizan en `config.py`.
-* Las credenciales (Gemini, Redis y, si aplica, el buscador en vivo) viven en el `.env` de la raíz.
+* Las credenciales (OpenAI, OpenCode, Redis y, si aplica, el buscador en vivo) viven en el `.env` de la raíz.
   **`config.py` es el único archivo que lee variables de entorno.**
 * Los datos de prueba son archivos versionados en `data/`; **nada se genera durante la ejecución** del
   agente ni del notebook.

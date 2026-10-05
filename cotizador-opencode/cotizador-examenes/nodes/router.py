@@ -12,12 +12,18 @@ from prompts.router_prompt import construir_mensajes
 from schemas import SalidaRouter, Solicitud
 from services import privacidad
 
-TIPOS_VISIBLES = ("human", "ai")
-
 
 def _historial_visible(messages: list) -> list:
-    """Solo los mensajes del usuario y las respuestas finales."""
-    visibles = [m for m in messages if getattr(m, "type", "") in TIPOS_VISIBLES]
+    """Mensajes del usuario y respuestas finales (sin las rondas de herramientas).
+
+    Se excluyen los `ai` con `tool_calls`: son pasos intermedios del ReAct y, si se envían sin
+    sus mensajes `tool`, el proveedor los rechaza. Así el router ve el historial que necesita.
+    """
+    visibles = [
+        m for m in messages
+        if getattr(m, "type", "") == "human"
+        or (getattr(m, "type", "") == "ai" and not getattr(m, "tool_calls", None))
+    ]
     return visibles or messages[-1:]
 
 
@@ -61,4 +67,17 @@ def nodo_router(state: dict) -> dict:
         "solicitud": solicitud,
         "datos_personales_detectados": bool(salida.datos_personales)
         or _hay_datos_personales(state.get("messages", [])),
+        # Reinicia el estado del turno (state.py: los demás campos se reinician entre turnos,
+        # salvo `messages` y `prevision_preguntada`). Sin esto, un turno hereda centros,
+        # identificaciones y cotizaciones del anterior.
+        "centros": [],
+        "identificaciones": {},
+        "cotizaciones": {},
+        "observaciones": [],
+        "alertas": [],
+        "rechazos": [],
+        "iteraciones": 0,
+        "motivo_parada": None,
+        "reporte": None,
+        "verificacion": None,
     }

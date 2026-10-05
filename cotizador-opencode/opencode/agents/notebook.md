@@ -57,8 +57,8 @@ Celdas alternando markdown explicativo y código ejecutable, en este orden:
 1. **Portada y criterio de éxito.** Qué es el cotizador, el problema y el usuario (spec.md §1), el
    diagrama del grafo en markdown (router + ReAct + consolidación + verificador) y cómo usar el notebook.
 2. **Entorno.** Verificar la versión de Python, que el `.venv` está activo y que las dependencias están
-   instaladas. Cargar el `.env` con `python-dotenv` y comprobar que `GOOGLE_API_KEY`, `GOOGLE_MODEL`,
-   `GOOGLE_EMBEDDINGS_MODEL` y `REDIS_URL` existen — **imprimiendo solo si están presentes, nunca su valor.**
+   instaladas. Cargar el `.env` con `python-dotenv` y comprobar que `OPENAI_API_KEY`, `OPENCODE_API_KEY`,
+   `LLM_MODELO_AGENTE`, `OPENAI_EMBEDDINGS_MODEL` y `REDIS_URL` existen — **imprimiendo solo si están presentes, nunca su valor.**
 3. **Ficha del modelo y configuración.** Importar `config.py` y mostrar la configuración no sensible: ID
    del modelo, temperaturas, modelo de embeddings, `N_POR_DEFECTO`, `K_MAX_CENTROS`, `MAX_ITERACIONES`,
    `BUSQUEDA_MODO` y `ESCENARIO_POR_DEFECTO` (DA-03, §5.11).

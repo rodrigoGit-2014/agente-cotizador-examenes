@@ -23,7 +23,7 @@ hay que corregirlo antes de implementar.
 
 | Campo | Supuesto | Base del supuesto |
 |---|---|---|
-| Tecnologías | Python, **LangGraph + LangChain**, LLM **Google Gemini** por API, **Redis del curso** como vector store | Stack del curso; `intent.md` exige "el Redis del curso"; la pauta exige LLM real por API o modelo local |
+| Tecnologías | Python, **LangGraph + LangChain**, LLM por API (**OpenAI** u **OpenCode Zen**), **Redis del curso** como vector store | Stack del curso; `intent.md` exige "el Redis del curso"; la pauta exige LLM real por API o modelo local |
 | Código existente | **Se parte desde cero.** El repositorio solo contiene `intent.md` y un `README.md` vacío | Revisión del repositorio |
 | Documentos adicionales | Pauta de la tarea final | Entregada al equipo |
 
@@ -442,7 +442,7 @@ La ingesta es un paso de preparación **idempotente**: si el índice ya tiene lo
 
 | Parámetro | Valor | Dónde |
 |---|---|---|
-| `MODELO_LLM` | ID exacto del modelo Gemini del curso (DA-03) | `config.py` / variable de entorno |
+| `MODELO_LLM` | Modelo de `LLM_MODELO_AGENTE` (`openai:<modelo>` u `opencode:<modelo>`) (DA-03) | `config.py` / variable de entorno |
 | `TEMPERATURA_AGENTE`, `TEMPERATURA_RECEPCIONISTA` | 0 – 0,2 | `config.py` |
 | `MODELO_EMBEDDINGS`, `DIMENSIONES` | DA-03 | `config.py` |
 | `N_POR_DEFECTO` | 2 | `config.py` |
@@ -450,7 +450,7 @@ La ingesta es un paso de preparación **idempotente**: si el índice ya tiene lo
 | `MAX_ITERACIONES` | 10 (derivado de K) | `config.py` |
 | `BUSQUEDA_MODO` | `instantanea` (por defecto) · `en_vivo` | `config.py` / variable de entorno |
 | `ESCENARIO_POR_DEFECTO` | `default` | `config.py` |
-| `GOOGLE_API_KEY`, `REDIS_URL`, clave del buscador en vivo (si aplica) | Solo en `.env`, nunca en el repositorio | `.env.example` documenta los nombres |
+| `OPENAI_API_KEY`, `OPENCODE_API_KEY`, `REDIS_URL`, clave del buscador en vivo (si aplica) | Solo en `.env`, nunca en el repositorio | `.env.example` documenta los nombres |
 
 ### 5.12 Estructura de archivos
 
@@ -829,7 +829,7 @@ Casos en que dos reglas (del intent, o del intent y la pauta) no pueden cumplirs
 |---|---|---|---|
 | DA-01 | Implementación de la recepcionista | (a) LLM con validador de fidelidad [P-05], como dice el intent; (b) código determinístico con las mismas políticas y eventos; (c) ambas, con (b) para las pruebas | **(a)** como diseño principal. Si P-12 muestra inestabilidad en la Fase 3, pasar a **(c)** y documentarlo como desviación del intent |
 | DA-02 | Proveedor de búsqueda en vivo | (a) API con nivel gratuito y clave (por ejemplo, un buscador programable); (b) librería sin clave; (c) no implementar el modo en vivo en la entrega | **(a) o (b)**, solo como capacidad opcional fuera de las pruebas. Si no alcanza el tiempo, **(c)** y declararlo. Verificar los términos de uso del proveedor |
-| DA-03 | Modelo de LLM y de embeddings | IDs vigentes de Gemini que usa el curso | Usar los IDs exactos del curso; documentarlos en la ficha. Confirmar con el docente |
+| DA-03 | Modelo de LLM y de embeddings | IDs vigentes de OpenAI / OpenCode Zen | Usar los IDs exactos del curso; documentarlos en la ficha. Confirmar con el docente |
 | DA-04 | Granularidad de la recepcionista | (a) una llamada por turno; (b) una llamada por conversación que responde todo el guion | **(b)** para cuotas y estabilidad, con turnos que reaccionan a la previsión. **(a)** si el equipo prioriza realismo |
 | DA-05 | Centros reales o ficticios | (a) datos públicos reales + resto ficticio (intent); (b) todo ficticio | **(a) con P-10** si el repositorio es privado; **(b)** si es público |
 | DA-06 | Bonos a declarar | RAG (+1,0), workflow con router (+1,0), golden set (+0,5), verificador como guardrail (+0,5), herramienta de acción (no aplica: el intent prohíbe agendar) | Declarar los cuatro primeros (+3,0). Cada uno con su prueba (§7.7). El MCP no aporta al propósito |

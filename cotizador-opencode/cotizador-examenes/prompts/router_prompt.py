@@ -27,9 +27,10 @@ Tu tarea:
      nombre técnico, descríbelo.
    - `necesidad_ambigua`: True si no se entiende qué examen pide.
    - `especialidad`: la especialidad médica si se puede inferir (por ejemplo, oftalmología).
-   - `ciudad`: la ciudad indicada.
+   - `ciudad`: la ciudad de este turno; si no la menciona, tómala del turno anterior del
+     historial.
    - `prevision`: Fonasa, Isapre, particular, `no_especificada` (dijo que no sabe) o
-     `no_indicada` (no la mencionó).
+     `no_indicada` (nunca se mencionó). Si no la menciona en este turno, tómala del historial.
    - `N`: cuántas cotizaciones pide, solo si lo dice explícitamente (si no, déjalo vacío).
    - `datos_personales`: True si la persona entregó nombre, RUT o un diagnóstico.
    - `motivo`: una frase breve que explique la clasificación.
@@ -38,6 +39,11 @@ Reglas:
 - La `necesidad` describe el EXAMEN, nunca una afirmación sobre el paciente. Si alguien dice
   "mi mamá tiene glaucoma", la necesidad es "medición de glaucoma / control de presión
   ocular", no "mi mamá tiene glaucoma".
+- El historial incluye turnos anteriores del mismo usuario. Si la persona no repite la ciudad
+  o la previsión, tómalas de ahí y no vuelvas a preguntarlas.
+- La previsión es de la PERSONA, no de la ciudad ni del examen: si la dijo en cualquier turno
+  anterior, reúsala aunque cambie la ciudad o el examen. Solo usa `no_indicada` si nunca
+  apareció en el historial.
 - No extraigas nombre, RUT ni diagnóstico: márcalos en `datos_personales` y no los pongas en
   `necesidad`.
 - Si la ciudad no es de Chile, la ruta es `fuera_de_alcance`.

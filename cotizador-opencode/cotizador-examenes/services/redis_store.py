@@ -6,6 +6,7 @@ La conexión es perezosa: solo falla al usarse si falta `REDIS_URL`.
 
 from __future__ import annotations
 
+import re
 from array import array
 
 import config
@@ -31,7 +32,7 @@ def indice_existe(client) -> bool:
 
 def crear_indice(client, dimensiones: int) -> None:
     from redis.commands.search.field import TagField, TextField, VectorField
-    from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+    from redis.commands.search.index_definition import IndexDefinition, IndexType
 
     schema = (
         TagField("centro_id"),
@@ -72,12 +73,22 @@ def _clave(i: int) -> str:
     return f"{config.PREFIJO_FRAGMENTOS}:{i}"
 
 
+def _tag(campo: str, valor: str) -> str:
+    """Filtro TAG de RediSearch con el valor escapado (p. ej. el guion de `FO-A1`)."""
+    escapado = re.sub(r"([^A-Za-z0-9_])", r"\\\1", valor)
+    return f"@{campo}:{{{escapado}}}"
+
+
+def _filtro_codigo(codigo_examen: str) -> str:
+    return f"({_tag('codigo_examen', codigo_examen)}|{_tag('codigo_examen', 'general')})"
+
+
 def contar_fragmentos(client, centro_id: str | None = None) -> int:
     if not indice_existe(client):
         return 0
     from redis.commands.search.query import Query
 
-    consulta = f"@centro_id:{{{centro_id}}}" if centro_id else "*"
+    consulta = _tag("centro_id", centro_id) if centro_id else "*"
     q = Query(consulta).paging(0, 0)
     return client.ft(config.INDICE_CENTROS).search(q).total
 
@@ -108,9 +119,9 @@ def buscar_fragmentos(
 ) -> list[dict]:
     from redis.commands.search.query import Query
 
-    filtros = [f"@centro_id:{{{centro_id}}}"]
+    filtros = [_tag("centro_id", centro_id)]
     if codigo_examen:
-        filtros.append(f"(@codigo_examen:{{{codigo_examen}}}|@codigo_examen:{{general}})")
+        filtros.append(_filtro_codigo(codigo_examen))
     prefijo = " ".join(filtros)
     q = (
         Query(f"({prefijo})=>[KNN {top_k} @embedding $vec AS score]")
@@ -143,9 +154,9 @@ def obtener_fragmentos(
     """Recupera fragmentos por filtro, sin vector (para la recepcionista y la interpretación)."""
     from redis.commands.search.query import Query
 
-    filtros = [f"@centro_id:{{{centro_id}}}"]
+    filtros = [_tag("centro_id", centro_id)]
     if codigo_examen:
-        filtros.append(f"(@codigo_examen:{{{codigo_examen}}}|@codigo_examen:{{general}})")
+        filtros.append(_filtro_codigo(codigo_examen))
     q = (
         Query(" ".join(filtros))
         .paging(0, limite)

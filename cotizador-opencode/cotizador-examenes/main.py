@@ -10,7 +10,9 @@ from __future__ import annotations
 from langgraph.graph import END, START, StateGraph
 
 import config
+import schemas
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from nodes.agente import nodo_agente
 from nodes.consolidar import nodo_consolidar
 from nodes.herramientas import nodo_herramientas
@@ -24,6 +26,15 @@ from state import Estado
 # Número de rondas de herramientas permitidas (spec.md §5.10). El agente puede pedir varias
 # herramientas por ronda; el tope acota el ciclo.
 MAX_RONDAS_HERRAMIENTAS = config.MAX_ITERACIONES
+
+# Tipos del dominio registrados en el serializador del checkpointer. Sin esto, al deserializar
+# el estado LangGraph avisa "Deserializing unregistered type schemas.X" y en el futuro lo bloqueará.
+_TIPOS_DOMINIO = [
+    obj
+    for obj in vars(schemas).values()
+    if isinstance(obj, type) and getattr(obj, "__module__", "") == "schemas"
+]
+_SERDE = JsonPlusSerializer(allowed_msgpack_modules=_TIPOS_DOMINIO)
 
 
 def ruta_condicional(state: Estado) -> str:
@@ -92,7 +103,7 @@ def build_graph():
     grafo.add_edge("responder", "verificador")
     grafo.add_edge("verificador", END)
 
-    return grafo.compile(checkpointer=MemorySaver())
+    return grafo.compile(checkpointer=MemorySaver(serde=_SERDE))
 
 
 app = build_graph()

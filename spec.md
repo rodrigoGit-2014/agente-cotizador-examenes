@@ -455,7 +455,7 @@ La ingesta es un paso de preparación **idempotente**: si el índice ya tiene lo
 ### 5.12 Estructura de archivos
 
 ```
-cotizador_examenes.ipynb      entregable: evidencia ejecutada
+prueba_cotizador.ipynb        entregable: evidencia ejecutada
 intent.md · spec.md
 requirements.txt · .env.example · .gitignore
 prompts/                      seguridad_universal.md, seguridad_agente.md, router.md, agente.md,

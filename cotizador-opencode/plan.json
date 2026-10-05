@@ -284,7 +284,7 @@
     },
     {
       "id": "12-notebook-estudio",
-      "nombre": "Notebook de entrega y estudio",
+      "nombre": "Notebook de entrega (prueba multi-turno)",
       "estado": "hecho",
       "agente": "notebook",
       "depende_de": [
@@ -292,12 +292,12 @@
       ],
       "descripcion": "Lo ejecuta el agente notebook, no el implementator. Detalle completo en opencode/agents/notebook.md.",
       "entregables": [
-        "cotizador-examenes/notebooks/cotizador_examenes.ipynb con las secciones de spec.md 7.7"
+        "cotizador-examenes/notebooks/prueba_cotizador.ipynb, con una portada y una celda que corre una conversacion multi-turno en el mismo hilo (la logica vive en notebooks/recorrido_demo.py)"
       ],
       "verificacion": [
-        "El notebook es valido segun nbformat y se ejecuta de arriba abajo",
-        "Las salidas estan vacias y no contiene credenciales",
-        "Los prompts se imprimen y la tabla de verificacion final existe"
+        "El notebook es valido segun nbformat y se ejecuta de arriba abajo sin intervencion",
+        "No contiene credenciales ni valores de variables de entorno",
+        "Se ve la traza paso a paso de cada turno y el checklist de criterios al final"
       ]
     }
   ]

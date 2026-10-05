@@ -80,7 +80,7 @@ Priorizar código modular, simple, mantenible y ejecutable. Sin sobreingeniería
 | `test-code` | Ejecuta el agente y comprueba que funciona | No |
 | `validator` | Golden set + pruebas de seguridad; mide si el agente acierta | No (solo `validacion/`) |
 | `review` | Revisa calidad, seguridad y arquitectura del código | No |
-| `notebook` | Genera el notebook de entrega y estudio del agente | No (solo `notebooks/`) |
+| `notebook` | Genera el notebook de entrega del agente | No (solo `notebooks/`) |
 
 Solo el `implementator` toca el código del agente. Los demás reportan, y sus hallazgos se aplican
 **siempre** a través de él.
@@ -105,7 +105,7 @@ mutable, `estado`, con **solo dos valores**: `pendiente` o `hecho`.
 09-robustez                casos límite y manejo de errores
 10-documentacion           README y ficha final
 11-validacion-golden-set   (validator) golden set G01–G16 + S1–S6 + dos corridas
-12-notebook-estudio        (notebook) notebook de entrega y estudio
+12-notebook-estudio        (notebook) notebook de entrega (prueba multi-turno)
 ```
 
 ## Reglas del plan

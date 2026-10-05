@@ -173,11 +173,9 @@ La condición de parada y el tope están en `main.py` (`despues_agente`) y en
 
 ### Notebooks
 
-- `notebooks/prueba_cotizador.ipynb` — **prueba rápida**, una sola celda: corre una conversación de
+- `notebooks/prueba_cotizador.ipynb` — **notebook de entrega**, una sola celda: corre una conversación de
   varios turnos en el mismo hilo. **La ingesta de documentos y el RAG se preparan solos** (solo si
   hace falta), así que basta con tener Redis accesible.
-- `notebooks/cotizador_examenes.ipynb` — **notebook de entrega y estudio** (11 secciones): ficha del
-  modelo, estado, grafo, datos, ingesta, prompts, recorrido narrado y verificación final.
 
 La lógica compartida de la demostración vive en `notebooks/recorrido_demo.py`.
 
@@ -218,6 +216,6 @@ cotizador-examenes/
 ├── prompts/             un prompt por llamada al LLM + seguridad.py
 ├── data/                datos de prueba versionados
 ├── validacion/          golden set y pruebas de seguridad
-├── notebooks/           cotizador_examenes.ipynb, prueba_cotizador.ipynb y recorrido_demo.py
+├── notebooks/           prueba_cotizador.ipynb y recorrido_demo.py
 └── scripts/             herramientas de desarrollo e ingesta
 ```

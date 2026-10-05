@@ -36,7 +36,7 @@ márcalo como `N/A (paso <id> pendiente)`.
 | Solo prueba esto si está `hecho`… | el paso |
 |---|---|
 | Config, estado, modelos y dependencias | `01-estructura-base` |
-| Documentos, instantánea, eventos, escenarios | `02-datos-simulador` |
+| Documentos, web snapshot, eventos, escenarios | `02-datos-simulador` |
 | Router, respuesta directa y grafo mínimo | `03-grafo-minimo` |
 | Ingesta en Redis y llamada simulada | `04-ingesta-simulador` |
 | Las 4 herramientas y el ciclo ReAct | `05-react-herramientas` |
@@ -64,7 +64,7 @@ los demás para dar un informe completo.
 3. **Imports.** Importa `main.py` y verifica que el grafo se construye y se expone como símbolo
    importable sin lanzar el bucle de consola. Importa `config`, `state` y `schemas`.
 4. **Datos de prueba.** Comprueba que existen y cargan: `data/documentos/*.pdf` (>= 3),
-   `data/instantaneas/`, `data/eventos.json`, `data/escenarios/default.json` y `data/ciudades_chile.json`.
+   `data/web_snapshots/`, `data/eventos.json`, `data/escenarios/default.json` y `data/ciudades_chile.json`.
    Valida que todo JSON carga con `json.load`. Comprueba que el notebook/agente **no** genera datos de
    prueba al ejecutarse (RF-39).
 5. **Redis y RAG.** Comprueba que el índice `cotizador_centros_v1` existe en el Redis del curso y que

@@ -95,7 +95,7 @@ mutable, `estado`, con **solo dos valores**: `pendiente` o `hecho`.
 
 ```
 01-estructura-base         proyecto, config, estado y dependencias
-02-datos-simulador         PDFs, instantánea, eventos, escenarios y ciudades (F1)
+02-datos-simulador         PDFs, web snapshot, eventos, escenarios y ciudades (F1)
 03-grafo-minimo            router + respuesta directa + consolidación (ya ejecutable)
 04-ingesta-simulador       Redis/RAG, llamada simulada, eventos e interpretación (F2)
 05-react-herramientas      las 4 herramientas + ciclo ReAct + parada y tope (F3)

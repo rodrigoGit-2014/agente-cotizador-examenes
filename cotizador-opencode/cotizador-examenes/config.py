@@ -53,7 +53,7 @@ N_POR_DEFECTO = 2
 K_MAX_CENTROS = 6
 MAX_ITERACIONES = 10
 
-BUSQUEDA_MODO = os.getenv("BUSQUEDA_MODO", "instantanea")
+BUSQUEDA_MODO = os.getenv("BUSQUEDA_MODO", "web_snapshot")
 ESCENARIO_POR_DEFECTO = "default"
 
 # Redis del curso: índice vectorial de los documentos de centro.
@@ -66,7 +66,7 @@ TOP_K_FRAGMENTOS = 4
 
 DATA_DIR = BASE_DIR / "data"
 DOCUMENTOS_DIR = DATA_DIR / "documentos"
-INSTANTANEAS_DIR = DATA_DIR / "instantaneas"
+WEB_SNAPSHOTS_DIR = DATA_DIR / "web_snapshots"
 ESCENARIOS_DIR = DATA_DIR / "escenarios"
 EVENTOS_PATH = DATA_DIR / "eventos.json"
 CIUDADES_CHILE_PATH = DATA_DIR / "ciudades_chile.json"

@@ -1,8 +1,8 @@
 {
   "id": "default",
-  "descripcion": "Escenario normal: los cinco centros de la instantánea. MiVisión, Clínica Talca y Óptica Maule tienen documento; Centro Visual Norte no. Sin eventos.",
+  "descripcion": "Escenario normal: los cinco centros del web snapshot. MiVisión, Clínica Talca y Óptica Maule tienen documento; Centro Visual Norte no. Sin eventos.",
   "fecha_simulada": "2025-03-10",
-  "instantanea": "talca-oftalmologia",
+  "web_snapshot": "talca-oftalmologia",
   "horas": {
     "56712221111": {
       "GLA-A1": "2025-03-12 09:00",

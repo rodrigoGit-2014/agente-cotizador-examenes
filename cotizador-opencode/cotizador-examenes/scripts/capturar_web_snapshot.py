@@ -1,16 +1,16 @@
-"""Captura y versiona una instantánea de búsqueda de centros (`spec.md` §5.5, §5.6).
+"""Captura y versiona un web snapshot de búsqueda de centros (`spec.md` §5.5, §5.6).
 
-La instantánea es el modo por defecto de `buscar_centros`: un archivo versionado con los
+El web snapshot es el modo por defecto de `buscar_centros`: un archivo versionado con los
 resultados de una búsqueda web, para repetir una prueba aunque la web cambie (RF-09).
 
 Modos:
 - `--desde-json <archivo>`: normaliza un volcado crudo de resultados (lo que devolvió el
-  proveedor) y escribe la instantánea versionada.
+  proveedor) y escribe el web snapshot versionado.
 - `--en-vivo`: consulta el proveedor configurado. Si no hay proveedor (DA-02 pendiente),
   informa y termina con código 2, sin inventar endpoints ni credenciales.
 
 Uso:
-    python scripts/capturar_instantanea.py --desde-json crudo.json \
+    python scripts/capturar_web_snapshot.py --desde-json crudo.json \
         --id talca-oftalmologia --especialidad Oftalmología --ciudad Talca \
         --consulta "oftalmología Talca"
 """
@@ -87,10 +87,10 @@ def capturar_en_vivo(consulta: str) -> list[dict]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Versiona una instantánea de búsqueda de centros.")
+    parser = argparse.ArgumentParser(description="Versiona un web snapshot de búsqueda de centros.")
     parser.add_argument("--desde-json", type=Path, help="Volcado crudo de resultados a normalizar.")
     parser.add_argument("--en-vivo", action="store_true", help="Consultar el proveedor (DA-02).")
-    parser.add_argument("--id", required=True, help="Identificador de la instantánea, p. ej. talca-oftalmologia.")
+    parser.add_argument("--id", required=True, help="Identificador del web snapshot, p. ej. talca-oftalmologia.")
     parser.add_argument("--especialidad", required=True)
     parser.add_argument("--ciudad", required=True)
     parser.add_argument("--consulta", default="")
@@ -105,7 +105,7 @@ def main() -> None:
     else:
         parser.error("Indique --desde-json <archivo> o --en-vivo.")
 
-    instantanea = normalizar(
+    web_snapshot = normalizar(
         id=args.id,
         especialidad=args.especialidad,
         ciudad=args.ciudad,
@@ -113,10 +113,10 @@ def main() -> None:
         resultados_crudos=crudos,
         fecha_captura=args.fecha,
     )
-    salida = args.salida or (config.INSTANTANEAS_DIR / f"{args.id}.json")
+    salida = args.salida or (config.WEB_SNAPSHOTS_DIR / f"{args.id}.json")
     salida.parent.mkdir(parents=True, exist_ok=True)
-    salida.write_text(json.dumps(instantanea, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Instantánea escrita en {salida} ({len(instantanea['resultados'])} resultados).")
+    salida.write_text(json.dumps(web_snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"Web snapshot escrita en {salida} ({len(web_snapshot['resultados'])} resultados).")
 
 
 if __name__ == "__main__":

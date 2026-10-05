@@ -107,7 +107,7 @@ START ─► router ─┬─► respuesta_directa ─────────�
                           │  tope por código ─► consolidar
                           └──────────────────► consolidar ─► responder ─► verificador ─► END
 
-herramientas:  buscar_centros ──► instantánea │ búsqueda en vivo
+herramientas:  buscar_centros ──► web snapshot │ búsqueda en vivo
                identificar_examen ──► lista de exámenes (ingesta) + LLM de identificación
                consultar_centro ──► simulador: llamador (código) ⇄ recepcionista (LLM) ──► interpretar (LLM)
                consultar_documentos ──► Redis del curso (RAG)
@@ -186,7 +186,7 @@ cotizador-examenes/
 │   ├── embeddings.py       # Modelo de embeddings
 │   ├── redis_store.py      # Redis del curso (índice cotizador_centros_v1)
 │   ├── ingesta.py          # PDF → fragmentos → embeddings → Redis
-│   ├── busqueda.py         # Instantánea / búsqueda en vivo
+│   ├── busqueda.py         # Web snapshot / búsqueda en vivo
 │   ├── simulador.py        # Llamador (código) + orquestación de la recepcionista
 │   └── ciudades.py         # Lista versionada de ciudades de Chile
 │
@@ -204,12 +204,12 @@ cotizador-examenes/
 ├── data/                   # Datos de prueba versionados (se cargan, no se generan)
 │   ├── documentos/         # *.pdf (>= 3), uno por centro
 │   ├── revision_documentos.md
-│   ├── instantaneas/       # talca-oftalmologia.json
+│   ├── web_snapshots/      # talca-oftalmologia.json
 │   ├── eventos.json        # los 6 eventos
 │   ├── escenarios/         # default.json + ~5 más
 │   └── ciudades_chile.json
 │
-├── scripts/                # Solo desarrollo: generar_documentos.py, capturar_instantanea.py, ingesta.py
+├── scripts/                # Solo desarrollo: generar_documentos.py, capturar_web_snapshot.py, ingesta.py
 ├── resultados/             # Salidas de la última corrida
 │
 ├── validacion/             # (lo gestiona el agente `validator` — no lo crees ni lo borres)
@@ -249,7 +249,7 @@ importable** (por ejemplo `app` y una función `build_graph()`), de modo que se 
 La lógica de nodos, herramientas, subagentes y servicios vive en sus carpetas y se importa desde `main.py`.
 
 **Temperatura.** Los LLM del agente y de la recepcionista usan temperatura baja (0 a 0,2), documentada
-en `config.py`. La reproducibilidad se logra con instantáneas de búsqueda, no con la web en vivo.
+en `config.py`. La reproducibilidad se logra con web snapshots de búsqueda, no con la web en vivo.
 
 **Determinismo.** Cada valor extraído por un LLM se valida por código contra su fuente (ver §8 y §7).
 Un dato que no se puede respaldar se reporta como **"no confirmado"**; nunca se inventa.
@@ -306,7 +306,7 @@ turno, salvo `prevision_preguntada`.
   * **Cotización comparable** = identificación "coincide" ∧ `contesto` ∧ `realiza = si` ∧ precio ≠ `no_confirmado`.
 * **Reporte:** `N`, `comparables`, `dudosos`, `descartados` (motivo: `no_realiza` · `no_contesta` ·
   `sin_horas` · `no_coincide` · `sin_documento`), `criterio_de_orden` [P-03], `trayectoria`.
-* **Escenario / Evento / Instantánea / CasoGoldenSet / PruebaSeguridad:** según spec.md 5.5.
+* **Escenario / Evento / WebSnapshot / CasoGoldenSet / PruebaSeguridad:** según spec.md 5.5.
 
 # 6. Herramientas (contrato, spec.md 5.6)
 
@@ -324,7 +324,7 @@ personal detectado.
 | `consultar_centro` | `(centro_id: str, codigo_examen: str)` | Centro de la búsqueda actual; examen identificado como "coincide" en ese centro y código igual al identificado; centro no consultado en el turno; aún < N comparables | `Cotizacion` + `progreso: {comparables, N, pendientes}`. La previsión la toma el código de la solicitud |
 | `consultar_documentos` | `(centro_id: str, consulta: str, codigo_examen?: str)` | Centro de la búsqueda actual | `{centro, fragmentos: [{texto, seccion, codigo_examen, fuente, similitud}]}`, con precios retirados [P-04]. Fragmentos con instrucciones se reemplazan y generan alerta |
 
-Modos de `buscar_centros`: `instantanea` (por defecto) lee la instantánea del escenario; `en_vivo`
+Modos de `buscar_centros`: `web_snapshot` (por defecto) lee el web snapshot del escenario; `en_vivo`
 consulta un proveedor de búsqueda web (DA-02) y **solo lee** nombre, dirección y teléfono. El modo se
 fija en la configuración, **no lo elige el LLM**.
 
@@ -414,7 +414,7 @@ Parámetros fijos en `config.py`:
 | `N_POR_DEFECTO` | 2 |
 | `K_MAX_CENTROS` | 6 [P-02] |
 | `MAX_ITERACIONES` | 1 búsqueda + 1 ronda de identificación + K consultas + 2 de margen = **10** con K = 6 |
-| `BUSQUEDA_MODO` | `instantanea` (por defecto) · `en_vivo` |
+| `BUSQUEDA_MODO` | `web_snapshot` (por defecto) · `en_vivo` |
 | `ESCENARIO_POR_DEFECTO` | `default` |
 
 ## LLM
@@ -434,7 +434,7 @@ Parámetros fijos en `config.py`:
 
 ## Búsqueda web (modo en vivo, opcional)
 
-* `services/busqueda.py`. Modo instantánea por defecto; el modo en vivo se activa a propósito y **solo
+* `services/busqueda.py`. Modo web snapshot por defecto; el modo en vivo se activa a propósito y **solo
   lee** nombre, dirección y teléfono. Si no se implementa en la entrega, se declara como capacidad
   pendiente (DA-02) y no lo usa ninguna prueba.
 

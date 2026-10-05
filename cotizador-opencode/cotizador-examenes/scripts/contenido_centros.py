@@ -6,7 +6,7 @@ Aquí se deja escrito y versionado para que el banco de pruebas sea reproducible
 de ninguna llamada al LLM.
 
 Todos los centros son ficticios (DA-05, [P-10]). El `centro_id` es el teléfono normalizado
-(solo dígitos, con código de país) y debe coincidir con el de la instantánea de búsqueda.
+(solo dígitos, con código de país) y debe coincidir con el del web snapshot de búsqueda.
 """
 
 from __future__ import annotations

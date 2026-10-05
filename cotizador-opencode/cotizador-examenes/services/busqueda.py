@@ -1,6 +1,6 @@
 """Búsqueda de centros (`spec.md` §5.6, §5.8).
 
-Modo `instantanea` (por defecto): lee un archivo versionado. Modo `en_vivo`: consulta un
+Modo `web_snapshot` (por defecto): lee un archivo versionado. Modo `en_vivo`: consulta un
 proveedor web (DA-02, pendiente); solo lee nombre, dirección y teléfono.
 """
 
@@ -11,7 +11,7 @@ import re
 import unicodedata
 
 import config
-from schemas import Centro, Escenario, Instantanea, ResultadoBusqueda
+from schemas import Centro, Escenario, WebSnapshot, ResultadoBusqueda
 
 PATRONES_INSTRUCCION = (
     r"ignora\s+(tus|las)\s+reglas",
@@ -37,9 +37,9 @@ def cargar_escenario(id_escenario: str) -> Escenario:
     return Escenario.model_validate(json.loads(ruta.read_text(encoding="utf-8")))
 
 
-def cargar_instantanea(id_instantanea: str) -> Instantanea:
-    ruta = config.INSTANTANEAS_DIR / f"{id_instantanea}.json"
-    return Instantanea.model_validate(json.loads(ruta.read_text(encoding="utf-8")))
+def cargar_web_snapshot(id_web_snapshot: str) -> WebSnapshot:
+    ruta = config.WEB_SNAPSHOTS_DIR / f"{id_web_snapshot}.json"
+    return WebSnapshot.model_validate(json.loads(ruta.read_text(encoding="utf-8")))
 
 
 def normalizar_telefono(telefono: str) -> str:
@@ -75,17 +75,17 @@ def buscar(
 
     if modo == "en_vivo":
         raise NotImplementedError(
-            "La búsqueda en vivo está pendiente (DA-02); use el modo instantánea."
+            "La búsqueda en vivo está pendiente (DA-02); use el modo web_snapshot."
         )
 
-    instantanea = cargar_instantanea(escenario.instantanea)
-    # La instantánea del escenario es de una ciudad concreta. Si se pide otra ciudad, no hay
+    web_snapshot = cargar_web_snapshot(escenario.web_snapshot)
+    # El web snapshot del escenario es de una ciudad concreta. Si se pide otra ciudad, no hay
     # datos para ella: se devuelve vacío, en vez de mostrar centros de otra ciudad
-    # (RF-08: buscar "en la ciudad"; RF-40: agregar una ciudad = generar su instantánea).
-    if _normalizar(instantanea.ciudad) != _normalizar(ciudad):
+    # (RF-08: buscar "en la ciudad"; RF-40: agregar una ciudad = generar su web snapshot).
+    if _normalizar(web_snapshot.ciudad) != _normalizar(ciudad):
         return [], []
     centros: list[Centro] = []
-    for r in instantanea.resultados[: config.K_MAX_CENTROS]:
+    for r in web_snapshot.resultados[: config.K_MAX_CENTROS]:
         if r.fragmento_web and contiene_instruccion(r.fragmento_web):
             alertas.append(f"Instrucción incrustada detectada en {r.nombre}")
             r = r.model_copy(update={"fragmento_web": limpiar_instruccion(r.fragmento_web)})

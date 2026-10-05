@@ -1,6 +1,6 @@
 # Revisión manual de los escenarios (RF-35, RF-36, RF-37)
 
-Los escenarios de `data/escenarios/` fijan el estado del mundo: fecha simulada, instantánea, próxima
+Los escenarios de `data/escenarios/` fijan el estado del mundo: fecha simulada, web snapshot, próxima
 hora por centro y examen, y eventos. Se revisan a mano una vez. Estado: **aprobado**.
 
 ## Fecha simulada
@@ -45,7 +45,7 @@ el que fija "no confirmada" o "no disponible".
 
 ## Centros no configurados por el escenario (RF-38)
 
-* Centro Visual Norte aparece en la instantánea pero **no tiene documento** en `data/documentos/` →
+* Centro Visual Norte aparece en el web snapshot pero **no tiene documento** en `data/documentos/` →
   no contesta.
 * Los centros con documento que un escenario no configure seguirían su documento, sin eventos; si no
   tienen hora definida, informan que no pueden revisar la agenda (hora no confirmada).

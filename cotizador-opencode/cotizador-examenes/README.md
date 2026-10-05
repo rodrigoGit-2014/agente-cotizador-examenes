@@ -15,7 +15,9 @@ simulador**, no contra el mundo.
 
 - **Entiende** la consulta (`router`) y decide la ruta: cotizar, información publicada, respuesta
   directa o fuera de alcance.
-- **Busca** centros de una especialidad en una ciudad (instantánea versionada por defecto).
+- **Busca** centros de una especialidad en una ciudad leyendo un **web snapshot versionado**
+  (`data/web_snapshots/`). Por defecto **no consulta la web**: la búsqueda en vivo está pendiente
+  (DA-02) y aún no está implementada.
 - **Revisa** los documentos de cada centro en Redis (RAG) para ver si ofrecen el examen.
 - **Llama** por teléfono en una conversación simulada (el llamado lo dirige código; la recepcionista
   es un LLM) y **interpreta** la conversación en una cotización.
@@ -72,7 +74,7 @@ graph TD
 
 | Herramienta | Entrada | Qué hace |
 |---|---|---|
-| `buscar_centros` | `especialidad`, `ciudad` | Lee la instantánea del escenario (modo `instantanea`) o busca en vivo (opcional). Valida que la ciudad sea de Chile, devuelve hasta K centros y detecta instrucciones inyectadas en resultados web. Si la ciudad pedida no es la de la instantánea, devuelve 0 centros. |
+| `buscar_centros` | `especialidad`, `ciudad` | Lee el web snapshot versionado del escenario (modo `web_snapshot`, el único implementado); **no consulta la web**. Valida que la ciudad sea de Chile, devuelve hasta K centros y detecta instrucciones inyectadas en los fragmentos del web snapshot. Si la ciudad pedida no es la del web snapshot, devuelve 0 centros. |
 | `identificar_examen` | `centro_id`, `necesidad` | Con la lista de exámenes del centro (ingesta) + un LLM, decide: `coincide`, `dudoso`, `no_coincide` o `sin_documento`. |
 | `consultar_centro` | `centro_id`, `codigo_examen` | Ejecuta la llamada simulada (código + recepcionista LLM) e interpreta la conversación en una `Cotizacion`. No se consulta si ya hay N comparables ni a centros dudosos/no coincidentes. |
 | `consultar_documentos` | `centro_id`, `consulta`, `codigo_examen?` | RAG sobre Redis: recupera fragmentos publicados del centro para preparación, requisitos o días de atención. No entrega precios. |
@@ -90,7 +92,7 @@ graph TD
 Ejemplo: *"Necesito un fondo de ojo en Talca, Fonasa"*.
 
 1. **Entiende la consulta** — el router clasifica `cotizar` y extrae necesidad, ciudad y previsión.
-2. **Busca centros** — `buscar_centros("oftalmología", "Talca")` devuelve los centros de la instantánea.
+2. **Busca centros** — `buscar_centros("oftalmología", "Talca")` devuelve los centros del web snapshot.
 3. **Revisa documentos** — para cada centro, `identificar_examen` decide si hacen el examen.
 4. **Llama a los centros** — `consultar_centro` simula la llamada (diálogo llamador/recepción) y
    registra precio, modalidad, próxima hora y preparación.
@@ -129,7 +131,7 @@ OPENCODE_API_KEY=...          # credencial de OpenCode Zen (LLM)
 LLM_MODELO_AGENTE=opencode:deepseek-v4.1-flash   # "openai:<modelo>" u "opencode:<modelo>"
 OPENAI_EMBEDDINGS_MODEL=text-embedding-3-small   # genera 768 dimensiones
 REDIS_URL=...                 # Redis del curso (vector store)
-BUSQUEDA_API_KEY=             # opcional: solo para el modo en vivo (DA-02)
+BUSQUEDA_API_KEY=             # opcional: reservada para el modo en vivo (DA-02, aún no implementado)
 ```
 
 `config.py` es el **único** módulo que lee el `.env`.
@@ -146,7 +148,7 @@ BUSQUEDA_API_KEY=             # opcional: solo para el modo en vivo (DA-02)
 | `N_POR_DEFECTO` | 2 | `config.py` |
 | `K_MAX_CENTROS` | 6 | `config.py` |
 | `MAX_ITERACIONES` | 10 | `config.py` |
-| `BUSQUEDA_MODO` | `instantanea` (por defecto) · `en_vivo` | `config.py` |
+| `BUSQUEDA_MODO` | `web_snapshot` (por defecto; único implementado) · `en_vivo` (pendiente, DA-02) | `config.py` |
 | `ESCENARIO_POR_DEFECTO` | `default` | `config.py` |
 | `INDICE_CENTROS` | `cotizador_centros_v1` (prefijo `cotizador:frag`) | `config.py` |
 
@@ -185,13 +187,13 @@ Todo dato de prueba está versionado en `data/` y **se carga, no se genera** dur
 
 * `data/documentos/*.pdf` — un PDF por centro (incluye un centro de oncología en Santiago).
 * `data/revision_documentos.md` — revisión manual de cada documento (A1) y unión teléfono ↔ documento (A2).
-* `data/instantaneas/` — instantáneas de búsqueda (una normal y una con inyección de prueba).
+* `data/web_snapshots/` — web snapshots de búsqueda (una normal y una con inyección de prueba).
 * `data/eventos.json` — los seis eventos de conversación.
 * `data/escenarios/` — escenarios (`default`, `no_contesta`, `cortada_y_suspendido`, `agenda`,
   `intenta_agendar`, `inyeccion`). Reglas de combinación y horas revisadas en `data/revision_escenarios.md`.
 * `data/ciudades_chile.json` — lista versionada de ciudades de Chile.
 
-Los scripts `scripts/generar_documentos.py` y `scripts/capturar_instantanea.py` son **solo de
+Los scripts `scripts/generar_documentos.py` y `scripts/capturar_web_snapshot.py` son **solo de
 desarrollo**.
 
 ## Evaluación

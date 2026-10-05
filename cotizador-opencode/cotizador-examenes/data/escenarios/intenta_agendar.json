@@ -2,7 +2,7 @@
   "id": "intenta_agendar",
   "descripcion": "MiVisión, que sí tiene hora definida para GLA-A1, ofrece anotar la hora y pide el nombre del paciente. El llamador nunca entrega el nombre ni acepta la reserva.",
   "fecha_simulada": "2025-03-10",
-  "instantanea": "talca-oftalmologia",
+  "web_snapshot": "talca-oftalmologia",
   "horas": {
     "56712221111": {
       "GLA-A1": "2025-03-12 09:00"

@@ -217,7 +217,7 @@ class Escenario(BaseModel):
     id: str
     descripcion: str = ""
     fecha_simulada: str
-    instantanea: str
+    web_snapshot: str
     horas: dict[str, dict[str, str]] = Field(default_factory=dict)
     eventos: dict[str, list[EventoAsignado]] = Field(default_factory=dict)
 
@@ -229,7 +229,7 @@ class ResultadoBusqueda(BaseModel):
     fragmento_web: Optional[str] = None
 
 
-class Instantanea(BaseModel):
+class WebSnapshot(BaseModel):
     id: str
     especialidad: str
     ciudad: str

@@ -27,9 +27,9 @@ Notas de la revisión:
 ## Unión búsqueda ↔ documento por teléfono (A2)
 
 El `centro_id` es el teléfono normalizado (solo dígitos, con código de país). Debe coincidir entre la
-instantánea de búsqueda y el documento, o el centro "no contesta" sin motivo real.
+web snapshot de búsqueda y el documento, o el centro "no contesta" sin motivo real.
 
-| Centro | Teléfono (documento) | Teléfono (instantánea) | `centro_id` | Coincide |
+| Centro | Teléfono (documento) | Teléfono (web snapshot) | `centro_id` | Coincide |
 |---|---|---|---|---|
 | Centro Oftalmológico MiVisión | +56 71 222 1111 | +56 71 222 1111 | 56712221111 | Sí |
 | Clínica Oftalmológica Talca | +56 71 223 2222 | +56 71 223 2222 | 56712232222 | Sí |

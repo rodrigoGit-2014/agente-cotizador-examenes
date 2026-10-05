@@ -15,9 +15,9 @@
       "descripcion": "Esqueleto del proyecto (F0). Sin grafo todavia: solo estructura, configuracion, modelos y estado compartido. Deja el entorno listo para llamar al LLM (OpenAI u OpenCode).",
       "entregables": [
         "cotizador-examenes/ con las carpetas nodes/ tools/ agents/ services/ prompts/ data/ scripts/ resultados/",
-        "config.py que lee el .env de la raiz (OPENAI_API_KEY, OPENAI_EMBEDDINGS_MODEL, OPENCODE_API_KEY, LLM_MODELO_AGENTE, REDIS_URL, BUSQUEDA_API_KEY) y expone los parametros fijos de spec.md 5.11: MODELO_LLM, TEMPERATURA_AGENTE, TEMPERATURA_RECEPCIONISTA, MODELO_EMBEDDINGS, DIMENSIONES, N_POR_DEFECTO=2, K_MAX_CENTROS=6, MAX_ITERACIONES=10, BUSQUEDA_MODO=instantanea, ESCENARIO_POR_DEFECTO=default. Es el unico archivo que toca os.environ",
+        "config.py que lee el .env de la raiz (OPENAI_API_KEY, OPENAI_EMBEDDINGS_MODEL, OPENCODE_API_KEY, LLM_MODELO_AGENTE, REDIS_URL, BUSQUEDA_API_KEY) y expone los parametros fijos de spec.md 5.11: MODELO_LLM, TEMPERATURA_AGENTE, TEMPERATURA_RECEPCIONISTA, MODELO_EMBEDDINGS, DIMENSIONES, N_POR_DEFECTO=2, K_MAX_CENTROS=6, MAX_ITERACIONES=10, BUSQUEDA_MODO=web_snapshot, ESCENARIO_POR_DEFECTO=default. Es el unico archivo que toca os.environ",
         "state.py con el TypedDict del estado compartido (spec.md 5.4): messages, ruta, solicitud, prevision_preguntada, datos_personales_detectados, centros, identificaciones, cotizaciones, observaciones, alertas, rechazos, iteraciones, motivo_parada, reporte, verificacion",
-        "schemas.py con los modelos Pydantic de spec.md 5.5: Solicitud, Centro, ExamenCentro, Identificacion, Cotizacion, Reporte, Escenario, Evento, Instantanea, CasoGoldenSet, PruebaSeguridad. El precio y la hora son submodelos con discriminador (tipo/estado) para respetar RF-16 y RF-17",
+        "schemas.py con los modelos Pydantic de spec.md 5.5: Solicitud, Centro, ExamenCentro, Identificacion, Cotizacion, Reporte, Escenario, Evento, WebSnapshot, CasoGoldenSet, PruebaSeguridad. El precio y la hora son submodelos con discriminador (tipo/estado) para respetar RF-16 y RF-17",
         "services/llm.py que construye ChatOpenAI (OpenAI u OpenCode Zen) desde config.py, con temperatura parametrizable y salida estructurada",
         "requirements.txt con langgraph, langchain, langchain-openai, langchain-community, redis, redisvl, pypdf, pydantic, python-dotenv, httpx y (para scripts) nbformat",
         ".env.example con las 5 variables sin valores reales",
@@ -47,10 +47,10 @@
         "scripts/generar_documentos.py que produce los PDF con el prompt generador",
         "data/documentos/ con >= 3 PDF de centros de Talca (oftalmologia: curvimetria, medicion de glaucoma, fondo de ojo), incluido el caso 'mismo nombre, distinto proposito' para curvimetria",
         "data/revision_documentos.md con la lista de chequeo revisada a mano de cada PDF (A1) y la verificacion del telefono publico (A2)",
-        "scripts/capturar_instantanea.py que consulta la web (modo en vivo) y guarda el resultado",
-        "data/instantaneas/talca-oftalmologia.json segun el formato de spec.md 5.5",
+        "scripts/capturar_web_snapshot.py que consulta la web (modo en vivo) y guarda el resultado",
+        "data/web_snapshots/talca-oftalmologia.json segun el formato de spec.md 5.5",
         "data/eventos.json con los seis eventos (RF-34) y quien los resuelve (recepcionista o codigo)",
-        "data/escenarios/ con ~6 escenarios (default, no_contesta, cortada_y_suspendido, agenda, intenta_agendar, inyeccion) segun RF-36 y las reglas de combinacion RF-35; fecha simulada fija, instantanea, horas por centro y examen, eventos. Existe default",
+        "data/escenarios/ con ~6 escenarios (default, no_contesta, cortada_y_suspendido, agenda, intenta_agendar, inyeccion) segun RF-36 y las reglas de combinacion RF-35; fecha simulada fija, web_snapshot, horas por centro y examen, eventos. Existe default",
         "data/ciudades_chile.json con la lista versionada de comunas y ciudades de Chile [P-13]"
       ],
       "verificacion": [
@@ -125,7 +125,7 @@
       ],
       "descripcion": "El nucleo del agente: herramientas con validacion en codigo, ciclo ReAct del agente, parada por codigo y consolidacion real del reporte. Reemplaza el nodo temporal y cierra el flujo central.",
       "entregables": [
-        "tools/buscar_centros.py (modo instantanea por defecto, en vivo opcional), con validacion de ciudad de Chile [P-13], maximo K centros [P-02] y deteccion de instrucciones en fragmento_web (RF-08, RF-09, RF-44)",
+        "tools/buscar_centros.py (modo web_snapshot por defecto, en vivo opcional), con validacion de ciudad de Chile [P-13], maximo K centros [P-02] y deteccion de instrucciones en fragmento_web (RF-08, RF-09, RF-44)",
         "tools/identificar_examen.py que usa la lista de examenes (ingesta) + LLM de identificacion, con veredicto coincide | dudoso | no_coincide | sin_documento y justificacion (RF-11, RF-12)",
         "tools/consultar_centro.py que ejecuta la llamada simulada y registra la Cotizacion, tomando la prevision del codigo",
         "tools/consultar_documentos.py (RAG) con filtros por centro_id y codigo_examen y sin precios en los fragmentos [P-04] (RF-28, RF-29)",

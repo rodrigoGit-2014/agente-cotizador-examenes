@@ -67,7 +67,7 @@ Celdas alternando markdown explicativo y código ejecutable, en este orden:
 5. **El grafo.** Construir el grafo e imprimirlo con `app.get_graph().draw_mermaid()` (texto). Intentar
    además `draw_mermaid_png()` dentro de un `try/except`; si falla, seguir con el texto.
 6. **Datos de prueba.** Cargar y mostrar los documentos de centro (lista de archivos y la lista de
-   exámenes extraída de la ingesta), la instantánea, `eventos.json` y los escenarios. Explicar que se
+   exámenes extraída de la ingesta), el web snapshot, `eventos.json` y los escenarios. Explicar que se
    cargan, no se generan (RF-39).
 7. **Ingesta y RAG.** Mostrar un fragmento del índice `cotizador_centros_v1` en Redis con sus metadatos,
    y una consulta de ejemplo de `consultar_documentos` (sin precios).

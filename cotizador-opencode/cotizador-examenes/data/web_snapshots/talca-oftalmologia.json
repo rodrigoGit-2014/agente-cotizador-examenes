@@ -1,0 +1,39 @@
+{
+  "id": "talca-oftalmologia",
+  "especialidad": "Oftalmología",
+  "ciudad": "Talca",
+  "fecha_captura": "2025-03-01",
+  "consulta_usada": "oftalmología Talca",
+  "resultados": [
+    {
+      "nombre": "Centro Oftalmológico MiVisión",
+      "direccion": "Av. San Miguel 1234, Talca",
+      "telefono": "+56 71 222 1111",
+      "fragmento_web": "Centro oftalmológico en Talca. Exámenes de fondo de ojo, presión ocular y curvimetría."
+    },
+    {
+      "nombre": "Clínica Oftalmológica Talca",
+      "direccion": "Calle 1 Sur 567, Talca",
+      "telefono": "+56 71 223 2222",
+      "fragmento_web": "Clínica oftalmológica. Tonometría, fondo de ojo y curvimetría con orden médica."
+    },
+    {
+      "nombre": "Óptica y Oftalmología Maule",
+      "direccion": "2 Norte 890, Talca",
+      "telefono": "+56 71 224 3333",
+      "fragmento_web": "Óptica con exámenes de fondo de ojo y medición de la graduación."
+    },
+    {
+      "nombre": "Centro de Especialidades Visuales Lircay",
+      "direccion": "Av. Lircay 1500, Talca",
+      "telefono": "+56 71 225 4444",
+      "fragmento_web": "Centro de especialidades visuales. Evaluación oftalmológica integral."
+    },
+    {
+      "nombre": "Centro Visual Norte",
+      "direccion": "Ruta 5 Sur km 255, Talca",
+      "telefono": "+56 71 226 5555",
+      "fragmento_web": "Centro visual. Consulte disponibilidad por teléfono."
+    }
+  ]
+}

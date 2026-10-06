@@ -1,0 +1,41 @@
+# Entornos virtuales (se recrean con `python -m venv .venv`)
+.venv/
+venv/
+env/
+
+# Credenciales y configuración local
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Resultados de validación de scratch (se regeneran)
+resultados/
+# Nota: los informes validacion/resultados_*.xlsx y validacion/seguridad_*.xlsx SÍ se versionan
+# como evidencia de la corrida final del golden set y de seguridad (ver README, "Evaluación").
+
+# Caches de herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+*.swp

@@ -1,0 +1,32 @@
+{
+  "id": "cortada_y_suspendido",
+  "descripcion": "MiVisión corta la llamada tras el segundo turno y Clínica Talca tiene el examen suspendido temporalmente. Eventos en centros distintos (combinables).",
+  "fecha_simulada": "2025-03-10",
+  "web_snapshot": "talca-oftalmologia",
+  "horas": {
+    "56712221111": {
+      "GLA-A1": "2025-03-12 09:00"
+    },
+    "56712232222": {
+      "GLA-B2": "2025-03-13 10:00"
+    },
+    "56712243333": {
+      "FO-C1": "2025-03-11 08:30",
+      "REF-C1": "2025-03-11 08:30"
+    }
+  },
+  "eventos": {
+    "56712221111": [
+      {
+        "evento": "llamada_cortada",
+        "tras_turno": 2
+      }
+    ],
+    "56712232222": [
+      {
+        "evento": "examen_suspendido",
+        "codigo_examen": "GLA-B2"
+      }
+    ]
+  }
+}

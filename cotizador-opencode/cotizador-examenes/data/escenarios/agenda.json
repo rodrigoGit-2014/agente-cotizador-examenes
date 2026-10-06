@@ -1,0 +1,27 @@
+{
+  "id": "agenda",
+  "descripcion": "MiVisión no tiene horas y pide volver a llamar; Clínica Talca no tiene horas en el período. Cada uno recibe un evento 'sin agenda' distinto (se excluyen entre sí en un mismo centro).",
+  "fecha_simulada": "2025-03-10",
+  "web_snapshot": "talca-oftalmologia",
+  "horas": {
+    "56712243333": {
+      "FO-C1": "2025-03-11 08:30",
+      "REF-C1": "2025-03-11 08:30"
+    },
+    "56712254444": {
+      "INT-E1": "2025-03-11 09:00"
+    }
+  },
+  "eventos": {
+    "56712221111": [
+      {
+        "evento": "sin_agenda_llamar_luego"
+      }
+    ],
+    "56712232222": [
+      {
+        "evento": "sin_agenda_periodo"
+      }
+    ]
+  }
+}

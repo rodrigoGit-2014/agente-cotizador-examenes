@@ -1,0 +1,32 @@
+{
+  "id": "no_contesta",
+  "descripcion": "Igual que default salvo que Centro Oftalmológico MiVisión no contesta (evento resuelto por código).",
+  "fecha_simulada": "2025-03-10",
+  "web_snapshot": "talca-oftalmologia",
+  "horas": {
+    "56712221111": {
+      "GLA-A1": "2025-03-12 09:00",
+      "FO-A1": "2025-03-11 09:00",
+      "CV-A1": "2025-03-11 15:00"
+    },
+    "56712232222": {
+      "GLA-B2": "2025-03-13 10:00",
+      "FO-B2": "2025-03-13 10:00",
+      "CV-B2": "2025-03-13 10:00"
+    },
+    "56712243333": {
+      "FO-C1": "2025-03-11 08:30",
+      "REF-C1": "2025-03-11 08:30"
+    },
+    "56712254444": {
+      "INT-E1": "2025-03-11 09:00"
+    }
+  },
+  "eventos": {
+    "56712221111": [
+      {
+        "evento": "no_contesta"
+      }
+    ]
+  }
+}

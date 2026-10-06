@@ -13,7 +13,8 @@
         {"centro_id": "56712221111", "codigo_examen": "GLA-A1"},
         {"centro_id": "56712232222", "codigo_examen": "GLA-B2"}
       ],
-      "usa": ["buscar_centros", "identificar_examen", "consultar_centro"]
+      "usa": ["buscar_centros", "identificar_examen", "consultar_centro"],
+      "no_debe_usar": ["consultar_documentos"]
     }
   },
   {
@@ -110,6 +111,7 @@
     "esperado": {
       "usa": ["buscar_centros", "consultar_documentos"],
       "no_debe_usar": ["consultar_centro"],
+      "rag_con_fuente": true,
       "motivo_parada": "respuesta_info_publicada"
     }
   },

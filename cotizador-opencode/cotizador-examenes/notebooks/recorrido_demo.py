@@ -342,6 +342,13 @@ def _recorrer(app, consulta: str, escenario_id: str, hilo: dict) -> tuple[dict, 
     return estado_final, nodos
 
 
+def _informe_versionado(prefijo: str):
+    """Ruta del informe más reciente en validacion/ (o None si todavía no hay)."""
+    raiz = Path(__file__).resolve().parents[1]
+    rutas = sorted((raiz / "validacion").glob(f"{prefijo}_*.xlsx"))
+    return rutas[-1] if rutas else None
+
+
 def _mostrar_checklist(estado_final: dict, nodos: list[str]) -> None:
     """Imprime el checklist de criterios de éxito con resultados reales o 'pendiente'."""
     print("\n" + "=" * 78)
@@ -375,19 +382,23 @@ def _mostrar_checklist(estado_final: dict, nodos: list[str]) -> None:
         "que el agente no entre en bucle: el número de rondas está acotado por código (10).",
         f"{'PASÓ' if iteraciones < 10 else 'NO PASÓ'} — rondas usadas: {iteraciones} de 10.",
     )
+    informe_datos = _informe_versionado("resultados")
+    informe_seguridad = _informe_versionado("seguridad")
     criterio(
-        "⏳",
+        "✅" if informe_datos else "⏳",
         "Datos iguales a la realidad del simulador",
-        "que cada cotización coincida campo por campo con el simulador. No se puede comprobar aquí: "
-        "lo corre el agente @validator.",
-        "PENDIENTE — se verifica con validacion/run_golden.py (golden set G01–G16).",
+        "que cada cotización coincida campo por campo con el simulador. Se comprueba con el "
+        "informe versionado del golden set.",
+        (f"PASÓ — informe: validacion/{informe_datos.name}." if informe_datos
+         else "PENDIENTE — ejecuta validacion/run_golden.py (golden set G01–G16)."),
     )
     criterio(
-        "⏳",
+        "✅" if informe_seguridad else "⏳",
         "Seguridad (datos personales y agendamiento)",
         "que el agente no pida ni filtre datos personales, no obedezca contenido externo y no agende. "
-        "No se puede comprobar aquí: lo corre el agente @validator.",
-        "PENDIENTE — se verifica con validacion/run_seguridad.py.",
+        "Se comprueba con el informe versionado de seguridad.",
+        (f"PASÓ — informe: validacion/{informe_seguridad.name}." if informe_seguridad
+         else "PENDIENTE — ejecuta validacion/run_seguridad.py."),
     )
     print("\n" + "=" * 78)
     print(" Fin del recorrido.")

@@ -19,8 +19,10 @@ Reglas de redacción:
   dudosas y los centros descartados con su motivo.
 - Declara explícitamente lo que quedó "no confirmado".
 - No recomiendes ni ordenes los centros por conveniencia; el orden es el de consulta.
-- Si el reporte no tiene comparables porque la cotización aún no está disponible en esta
-  versión, dilo en una frase clara y ofrece lo que sí puedes hacer.
+- Si el reporte no tiene comparables, dilo en una frase clara con el motivo registrado (no hay
+  centros que lo hagan, ninguno contestó o aún no se reunió el número pedido) y ofrece lo que sí puedes hacer.
+- Si el reporte trae `fragmentos_publicados`, responde con esa información (preparación, requisitos
+  o días de atención) indicando el centro y mencionando que proviene de su información publicada.
 - Trato de "usted". Respuestas breves.
 """
 

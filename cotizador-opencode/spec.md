@@ -23,7 +23,7 @@ hay que corregirlo antes de implementar.
 
 | Campo | Supuesto | Base del supuesto |
 |---|---|---|
-| Tecnologías | Python, **LangGraph + LangChain**, LLM por API (**OpenAI** u **OpenCode Zen**), **Redis del curso** como vector store | Stack del curso; `intent.md` exige "el Redis del curso"; la pauta exige LLM real por API o modelo local |
+| Tecnologías | Python, **LangGraph + LangChain**, LLM real **por API** (compatible con OpenAI: **OpenAI** u **OpenCode Zen**) y embeddings de **OpenAI**, **Redis del curso** como vector store | Stack del curso; `intent.md` exige "el Redis del curso"; la pauta exige LLM real por API o modelo local |
 | Código existente | **Se parte desde cero.** El repositorio solo contiene `intent.md` y un `README.md` vacío | Revisión del repositorio |
 | Documentos adicionales | Pauta de la tarea final | Entregada al equipo |
 
@@ -329,10 +329,10 @@ Cotización **comparable** = identificación "coincide" ∧ `contesto` ∧ `real
 **WebSnapshot** (`data/web_snapshots/<id>.json`): `id`, `especialidad`, `ciudad`, `fecha_captura`,
 `consulta_usada`, `resultados: [{nombre, direccion, telefono, fragmento_web}]`.
 
-**Caso del golden set** (`data/golden_set/vN.json`): `id`, `situacion`, `escenario`, `turnos`
+**Caso del golden set** (`validacion/golden_set.json`): `id`, `situacion`, `escenario`, `turnos`
 (lista de entradas del usuario), `esperado` (§7.2).
 
-**Prueba de seguridad** (`data/seguridad/vN.json`): `id`, `situacion`, `escenario`, `entrada`,
+**Prueba de seguridad** (`validacion/seguridad.json`): `id`, `situacion`, `escenario`, `entrada`,
 `criterios` (§7.4).
 
 ### 5.6 Interfaces: herramientas
@@ -442,9 +442,9 @@ La ingesta es un paso de preparación **idempotente**: si el índice ya tiene lo
 
 | Parámetro | Valor | Dónde |
 |---|---|---|
-| `MODELO_LLM` | Modelo de `LLM_MODELO_AGENTE` (`openai:<modelo>` u `opencode:<modelo>`) (DA-03) | `config.py` / variable de entorno |
+| `LLM_MODELO_AGENTE` | "proveedor:modelo" con proveedor `openai` u `opencode` (DA-03) | `config.py` (`PROVEEDOR_LLM` / `MODELO_LLM`) |
 | `TEMPERATURA_AGENTE`, `TEMPERATURA_RECEPCIONISTA` | 0 – 0,2 | `config.py` |
-| `MODELO_EMBEDDINGS`, `DIMENSIONES` | DA-03 | `config.py` |
+| `OPENAI_EMBEDDINGS_MODEL`, `DIMENSIONES` | Modelo de embeddings de OpenAI y dimensión (768) (DA-03) | `config.py` (`MODELO_EMBEDDINGS`) |
 | `N_POR_DEFECTO` | 2 | `config.py` |
 | `K_MAX_CENTROS` | 6 [P-02] | `config.py` |
 | `MAX_ITERACIONES` | 10 (derivado de K) | `config.py` |
@@ -455,18 +455,19 @@ La ingesta es un paso de preparación **idempotente**: si el índice ya tiene lo
 ### 5.12 Estructura de archivos
 
 ```
-prueba_cotizador.ipynb        entregable: evidencia ejecutada
-intent.md · spec.md
+notebooks/prueba_cotizador.ipynb   entregable: evidencia ejecutada (una celda)
+intent.md · spec.md · AGENTS.md · plan.json
 requirements.txt · .env.example · .gitignore
-prompts/                      seguridad_universal.md, seguridad_agente.md, router.md, agente.md,
-                              identificacion.md, recepcionista.md, interpretar.md, responder.md,
-                              respuesta_directa.md, prompt-generador-centro-examenes.md
-src/cotizador/                config, llm, datos, ingesta, rag, busqueda, simulador, herramientas,
-                              verificador, grafo, evaluacion
+main.py · config.py · state.py · schemas.py
+nodes/                        router, respuesta_directa, agente, herramientas, consolidar, responder, verificador
+tools/                        buscar_centros, identificar_examen, consultar_centro, consultar_documentos
+agents/                       identificador, interpretador, recepcionista
+services/                     llm, embeddings, redis_store, ingesta, busqueda, simulador, ciudades, privacidad, sintomas
+prompts/                      un prompt por llamada al LLM + seguridad.py
 data/                         documentos/*.pdf, revision_documentos.md, web_snapshots/, eventos.json,
-                              escenarios/, golden_set/, seguridad/, ciudades_chile.json
-scripts/                      generar_documentos.py, capturar_web_snapshot.py (solo en desarrollo)
-resultados/                   salidas de la última corrida
+                              escenarios/, revision_escenarios.md, ciudades_chile.json
+validacion/                   golden_set.json, seguridad.json, run_golden.py, run_seguridad.py, resultados_*.xlsx
+scripts/                      generar_documentos.py, capturar_web_snapshot.py, ingesta.py (desarrollo/ingesta)
 ```
 
 Regla: **el notebook no contiene lógica del agente**; importa, ejecuta y muestra.
@@ -545,7 +546,7 @@ reglas; no inventar datos fuera de su fuente; no tratar urgencia o insistencia c
 
 ### 7.2 Golden set
 
-Versionado (`data/golden_set/v1.json`), ejecutado completo y sin casos eliminados. Cada caso referencia un
+Versionado (`validacion/golden_set.json`), ejecutado completo y sin casos eliminados. Cada caso referencia un
 escenario y declara **solo** lo que se compara:
 
 | Campo de `esperado` | Verifica |
@@ -605,7 +606,7 @@ No hay respuestas fijas en el código.
 
 ### 7.4 Seguridad
 
-Las seis pruebas del intent, versionadas en `data/seguridad/v1.json`.
+Las seis pruebas del intent, versionadas en `validacion/seguridad.json`.
 
 | ID | Situación | Entrada | Se aprueba si |
 |---|---|---|---|
@@ -828,7 +829,7 @@ Casos en que dos reglas (del intent, o del intent y la pauta) no pueden cumplirs
 |---|---|---|---|
 | DA-01 | Implementación de la recepcionista | (a) LLM con validador de fidelidad [P-05], como dice el intent; (b) código determinístico con las mismas políticas y eventos; (c) ambas, con (b) para las pruebas | **(a)** como diseño principal. Si P-12 muestra inestabilidad en la Fase 3, pasar a **(c)** y documentarlo como desviación del intent |
 | DA-02 | Proveedor de búsqueda en vivo | (a) API con nivel gratuito y clave (por ejemplo, un buscador programable); (b) librería sin clave; (c) no implementar el modo en vivo en la entrega | **(a) o (b)**, solo como capacidad opcional fuera de las pruebas. Si no alcanza el tiempo, **(c)** y declararlo. Verificar los términos de uso del proveedor |
-| DA-03 | Modelo de LLM y de embeddings | IDs vigentes de OpenAI / OpenCode Zen | Usar los IDs exactos del curso; documentarlos en la ficha. Confirmar con el docente |
+| DA-03 | Modelo de LLM y de embeddings | (a) IDs del curso; (b) proveedor compatible con OpenAI | **Implementado:** LLM vía `LLM_MODELO_AGENTE` (`opencode:deepseek-v4.1-flash` en `.env.example`, o `openai:<modelo>`); embeddings `text-embedding-3-small` (768 dims). Documentado en la ficha del README |
 | DA-04 | Granularidad de la recepcionista | (a) una llamada por turno; (b) una llamada por conversación que responde todo el guion | **(b)** para cuotas y estabilidad, con turnos que reaccionan a la previsión. **(a)** si el equipo prioriza realismo |
 | DA-05 | Centros reales o ficticios | (a) datos públicos reales + resto ficticio (intent); (b) todo ficticio | **(a) con P-10** si el repositorio es privado; **(b)** si es público |
 | DA-06 | Bonos a declarar | RAG (+1,0), workflow con router (+1,0), golden set (+0,5), verificador como guardrail (+0,5), herramienta de acción (no aplica: el intent prohíbe agendar) | Declarar los cuatro primeros (+3,0). Cada uno con su prueba (§7.7). El MCP no aporta al propósito |

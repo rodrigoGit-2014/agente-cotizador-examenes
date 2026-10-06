@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 from datetime import datetime
@@ -97,6 +98,10 @@ def _comparar(caso: dict, res: dict) -> list[str]:
     if "no_debe_usar" in exp:
         for nombre in exp["no_debe_usar"]:
             check(nombre not in usadas, f"no_debe_usar {nombre}", sorted(usadas))
+    if exp.get("rag_con_fuente"):
+        observaciones = " ".join(estado.get("observaciones", []))
+        tiene_fuente = bool(re.search(r'"fuente"\s*:\s*"[^"]+"', observaciones))
+        check(tiene_fuente, "rag_con_fuente", "ninguna observación cita su fuente")
     if "horas" in exp and rep is not None:
         por_id = {c.centro_id: c for c in rep.comparables}
         for centro_id, esperado in exp["horas"].items():

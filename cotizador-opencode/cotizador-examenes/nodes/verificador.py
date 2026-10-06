@@ -48,9 +48,17 @@ def _verificar_comparables(reporte: Reporte, observaciones: str, digitos: str) -
 
 
 def _retirar_recomendaciones(texto: str) -> tuple[str, bool]:
-    limpio = RECOMENDACIONES_RE.sub("", texto)
-    limpio = re.sub(r"\s{2,}", " ", limpio).strip()
-    return limpio, limpio != texto
+    """Retira recomendaciones. Devuelve (texto, hubo_recomendacion).
+
+    Solo cuenta como cambio si de verdad se retiró una recomendación: antes, colapsar cualquier
+    espacio doble (por ejemplo los saltos de párrafo) marcaba toda respuesta como corregida y
+    dejaba `verificacion.aprobado` en False.
+    """
+    sin_recomendacion = RECOMENDACIONES_RE.sub("", texto)
+    if sin_recomendacion == texto:
+        return texto, False
+    limpio = re.sub(r"[ \t]{2,}", " ", sin_recomendacion).strip()
+    return limpio, True
 
 
 def _marcar_no_confirmado(texto: str, observaciones: str, digitos: str) -> tuple[str, bool]:

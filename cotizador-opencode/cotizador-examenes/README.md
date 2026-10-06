@@ -199,7 +199,33 @@ desarrollo**.
 * `validacion/golden_set.json` (G01–G16) y `validacion/seguridad.json` (S1–S6).
 * `validacion/run_golden.py` y `validacion/run_seguridad.py` ejecutan el agente con
   `astream(..., stream_mode="updates")` y comparan contra lo esperado.
-* `validacion/resultados_{fecha}.xlsx` con las hojas `Detalle`, `Resumen` y `Fallos`.
+* Los informes quedan **versionados** en `validacion/`: `resultados_{fecha}.xlsx`
+  (hojas `Detalle`, `Resumen` y `Fallos`) y `seguridad_{fecha}.xlsx`.
+
+Con credenciales y Redis propios, la corrida completa es:
+
+```bash
+python validacion/run_golden.py     # golden set G01–G16 -> validacion/resultados_{fecha}.xlsx
+python validacion/run_seguridad.py  # pruebas S1–S6     -> validacion/seguridad_{fecha}.xlsx
+```
+
+La corrida final debe quedar en verde y **versionada** junto al golden set, para que la persona
+revisora pueda contrastarla con lo ejecutado.
+
+### Bonos declarados (pauta, hasta +3,0)
+
+V1 declara **cuatro** ampliaciones y descarta el MCP (no aporta al propósito) y la herramienta de
+acción (el intent prohíbe agendar). Cada bono se ejecuta en un punto concreto del agente y tiene una
+prueba reproducible en `validacion/`:
+
+| Bono | Mecanismo | Dónde se ejecuta | Prueba / evidencia |
+|---|---|---|---|
+| **RAG** (+1,0) | Redis del curso como vector store: embeddings de OpenAI (768 dims), índice RediSearch `cotizador_centros_v1`, distancia coseno, algoritmo FLAT, top-k 4. Se retiran precios del canal documental [P-04]. | Herramienta `consultar_documentos`, **solo** cuando la pregunta necesita el corpus. | G11 la activa y exige que los fragmentos citen su `fuente`; G01 verifica que **no** se invoca cuando no hace falta (`no_debe_usar`). |
+| **Workflow adicional** (+1,0) | Router que elige entre 4 rutas; el destino lo decide código (`main.ruta_condicional`). | `nodes/router.py` + `main.py`. | Casos G11/G14/G16 contrastan la ruta; la traza de cada corrida queda en `run_golden.py`. |
+| **Evaluación con golden set** (+0,5) | 16 casos versionados (G01–G16) con expectativa por campo y veredicto por caso. | `validacion/golden_set.json` + `run_golden.py`. | `validacion/resultados_{fecha}.xlsx` con hojas Detalle, Resumen y Fallos. |
+| **Guardrail / juez** (+0,5) | Verificador de salida por código, por encima de la seguridad basal: marca como "no confirmado" lo no respaldado y retira recomendaciones. | `nodes/verificador.py` sobre el reporte y el texto final. | Caso benigno (aprobado sin cambios) y adversarial (precio inventado / "le recomiendo"); la corrida del notebook muestra una corrección aplicada. |
+
+Los bonos se resumen también en `spec.md` §9 (DA-06) y en la portada del notebook de entrega.
 
 ## Estructura
 

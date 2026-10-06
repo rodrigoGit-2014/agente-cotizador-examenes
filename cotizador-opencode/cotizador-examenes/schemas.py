@@ -194,6 +194,8 @@ class Reporte(BaseModel):
     comparables: list[Cotizacion] = Field(default_factory=list)
     dudosos: list[Dudoso] = Field(default_factory=list)
     descartados: list[Descartado] = Field(default_factory=list)
+    # Fragmentos de información publicada (ruta info_publicada) para que la respuesta los use.
+    fragmentos_publicados: list[dict] = Field(default_factory=list)
     criterio_de_orden: str = "orden en que se consultó"
     trayectoria: Trayectoria = Field(default_factory=Trayectoria)
 

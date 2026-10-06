@@ -7,6 +7,8 @@ dentro de `if __name__ == "__main__":`.
 
 from __future__ import annotations
 
+import inspect
+
 from langgraph.graph import END, START, StateGraph
 
 import config
@@ -29,12 +31,27 @@ MAX_RONDAS_HERRAMIENTAS = config.MAX_ITERACIONES
 
 # Tipos del dominio registrados en el serializador del checkpointer. Sin esto, al deserializar
 # el estado LangGraph avisa "Deserializing unregistered type schemas.X" y en el futuro lo bloqueará.
+#
+# El parámetro del serializador cambió de nombre entre versiones de `langgraph-checkpoint`:
+# `allowed_msgpack_modules` (2.x) y `allowed_json_modules` (3.x, rutas de módulo). Se elige según
+# la firma instalada para que el proyecto importe con cualquiera de las dos.
 _TIPOS_DOMINIO = [
     obj
     for obj in vars(schemas).values()
     if isinstance(obj, type) and getattr(obj, "__module__", "") == "schemas"
 ]
-_SERDE = JsonPlusSerializer(allowed_msgpack_modules=_TIPOS_DOMINIO)
+
+
+def _construir_serde() -> JsonPlusSerializer:
+    parametros = inspect.signature(JsonPlusSerializer.__init__).parameters
+    if "allowed_json_modules" in parametros:  # langgraph-checkpoint >= 3
+        return JsonPlusSerializer(allowed_json_modules=[("schemas",)])
+    if "allowed_msgpack_modules" in parametros:  # langgraph-checkpoint < 3
+        return JsonPlusSerializer(allowed_msgpack_modules=_TIPOS_DOMINIO)
+    return JsonPlusSerializer()
+
+
+_SERDE = _construir_serde()
 
 
 def ruta_condicional(state: Estado) -> str:

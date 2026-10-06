@@ -16,6 +16,9 @@ Reglas:
   como "no_confirmado" (precio y hora) o "no_confirmada" (preparación).
 - El precio se registra tal como lo informó el centro: cerrado, rango o referencial. No calcules
   precios por previsión.
+- Si el centro entregó algún número como precio (aunque sea el valor particular y la previsión del
+  usuario sea Fonasa o Isapre), regístralo con `modalidad` = la que el centro nombró y el `tipo`
+  según cómo lo dijo. Solo deja el precio `no_confirmado` si el centro no dio ningún número.
 - Si el centro pidió volver a llamar, la hora es "no_confirmada", nunca disponible.
 - La preparación que el centro no mencionó queda "no_confirmada".
 - Marca `contesto=True` solo si hubo conversación con el centro.

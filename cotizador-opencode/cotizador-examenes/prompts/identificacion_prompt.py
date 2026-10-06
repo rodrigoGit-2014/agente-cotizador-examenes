@@ -15,8 +15,14 @@ Criterio:
 - Decide por la DESCRIPCIÓN y el PROPÓSITO del examen, no por su nombre. Dos exámenes con el
   mismo nombre y distinto propósito NO son el mismo.
 - Veredicto `coincide`: el examen es claramente el que se necesita.
-- Veredicto `dudoso`: podría corresponder, pero no con certeza.
-- Veredicto `no_coincide`: el centro no ofrece ese examen.
+- Veredicto `dudoso`: lo que ofrece el centro PODRÍA SER o PODRÍA INCLUIR el examen pedido, pero no
+  hay certeza (por ejemplo, una evaluación integral que solo lo incluye "según criterio del profesional").
+- Veredicto `no_coincide`: el centro no ofrece el examen pedido. Es `no_coincide` (no `dudoso`)
+  cuando lo que tiene es un examen DISTINTO, aunque sea de la misma especialidad o sirva para
+  controlar la misma enfermedad. Ejemplo: si se pide la medición de la presión ocular y el centro
+  solo ofrece un fondo de ojo, es `no_coincide`; el fondo de ojo no mide la presión.
+- No marques `dudoso` solo porque el examen del centro se relacione con la misma enfermedad del
+  usuario; `dudoso` exige que podría tratarse del mismo examen pedido.
 - Si `coincide` o `dudoso`, devuelve el `codigo_examen` y el `nombre_examen_centro`.
 - Justifica en una frase."""
 

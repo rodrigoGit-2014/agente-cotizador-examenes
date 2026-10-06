@@ -245,9 +245,7 @@ def ingestar(directorio: Path | None = None, forzar: bool = False) -> dict:
         return {"fragmentos": len(fragmentos), "examenes": len(examenes),
                 "cargado": False, "motivo": "ya cargado"}
 
-    redis_store.asegurar_indice(client, config.DIMENSIONES)
-    client.delete(config.INDICE_CENTROS)  # recarga limpia si cambió
-    redis_store.asegurar_indice(client, config.DIMENSIONES)
+    redis_store.reiniciar_indice(client, config.DIMENSIONES)  # recarga limpia si cambió
 
     vectores = embeddings.embeber([f.texto for f in fragmentos])
     for f, v in zip(fragmentos, vectores):

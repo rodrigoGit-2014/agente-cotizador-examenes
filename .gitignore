@@ -20,9 +20,10 @@ dist/
 # Jupyter
 .ipynb_checkpoints/
 
-# Resultados de validación (se regeneran en cada corrida)
+# Resultados de validación de scratch (se regeneran)
 resultados/
-resultados_*.xlsx
+# Nota: los informes validacion/resultados_*.xlsx y validacion/seguridad_*.xlsx SÍ se versionan
+# como evidencia de la corrida final del golden set y de seguridad (ver README, "Evaluación").
 
 # Caches de herramientas
 .pytest_cache/

@@ -13,6 +13,17 @@ import services.llm
 from prompts.interpretar_prompt import construir_mensajes
 from schemas import Cotizacion, Precio, SalidaInterpretacion, TurnoTranscripcion
 
+# Precio en pesos tal como lo escribe la recepción: "$42.000" o "$42000".
+PRECIO_RE = re.compile(r"\$\s?(\d{1,3}(?:\.\d{3})+|\d{4,})")
+
+
+def _montos_de(texto: str) -> list[tuple[str, float]]:
+    """Pares (texto crudo, valor) de los precios que aparecen en la transcripción."""
+    return [
+        (m.group(0), float(m.group(1).replace(".", "")))
+        for m in PRECIO_RE.finditer(texto)
+    ]
+
 
 def _formatear(transcripcion: list[dict]) -> str:
     return "\n".join(
@@ -39,8 +50,23 @@ def validar_fuente(cot: Cotizacion, texto: str) -> list[str]:
             corregidos.append("precio")
             cot.precio = Precio()
 
+    # La recepción dio un precio numérico pero el modelo no lo registró: se recupera por código.
+    # El dato está en la transcripción, así que sigue siendo fiel a la fuente. Se exige un único
+    # valor distinto para no confundir un rango con un precio cerrado.
+    if cot.precio.tipo == "no_confirmado":
+        montos = _montos_de(plano)
+        if len({valor for _, valor in montos}) == 1:
+            crudo, valor = montos[0]
+            cot.precio = Precio(tipo="cerrado", valor=valor, texto=crudo)
+            corregidos.append("precio (recuperado de la transcripción)")
+            if cot.modalidad == "no_especificada" and "particular" in plano.lower():
+                cot.modalidad = "particular"
+
     if cot.proxima_hora.estado == "confirmada" and cot.proxima_hora.valor:
-        if cot.proxima_hora.valor not in plano:
+        # Compara por dígitos: la recepción puede decir "el 2025-03-12 a las 09:00" y el modelo
+        # devolver "2025-03-12 09:00"; exigir la subcadena exacta descartaba toda hora válida.
+        digitos_hora = re.sub(r"\D", "", cot.proxima_hora.valor)
+        if not digitos_hora or digitos_hora not in digitos:
             corregidos.append("proxima_hora")
             cot.proxima_hora.estado = "no_confirmada"
             cot.proxima_hora.valor = None

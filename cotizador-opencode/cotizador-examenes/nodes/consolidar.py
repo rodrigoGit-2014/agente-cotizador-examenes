@@ -5,6 +5,10 @@ Arma el reporte (comparables, dudosos, descartados, trayectoria) y calcula el mo
 
 from __future__ import annotations
 
+import json
+
+from langchain_core.messages import ToolMessage
+
 import config
 from schemas import (
     Cotizacion,
@@ -31,6 +35,21 @@ def _motivo_descarte(ident: Identificacion, cot: Cotizacion | None) -> str:
     if cot.proxima_hora.estado in ("no_disponible", "no_confirmada"):
         return "sin_horas"
     return "no_contesta"
+
+
+def _fragmentos_publicados(state: dict) -> list[dict]:
+    """Fragmentos que devolvió `consultar_documentos` (ruta info_publicada), para que la respuesta
+    final los use en vez de decir que no hay información."""
+    salida: list[dict] = []
+    for observacion in state.get("observaciones", []):
+        try:
+            data = json.loads(observacion)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(data, dict) and data.get("fragmentos"):
+            for fragmento in data["fragmentos"]:
+                salida.append({"centro": data.get("centro", ""), **fragmento})
+    return salida
 
 
 def _motivo_parada(state: dict, comparables: list[Cotizacion], hay_coincide: bool,
@@ -102,10 +121,25 @@ def nodo_consolidar(state: dict) -> dict:
         comparables=comparables,
         dudosos=dudosos,
         descartados=descartados,
+        fragmentos_publicados=(
+            _fragmentos_publicados(state) if state.get("ruta") == "info_publicada" else []
+        ),
         criterio_de_orden="orden en que se consultó",
         trayectoria=Trayectoria(
             centros_consultados=[c.centro_id for c in cotizaciones.values()],
             motivo_parada=motivo,
         ),
     )
-    return {"reporte": reporte, "motivo_parada": motivo}
+    salida: dict = {"reporte": reporte, "motivo_parada": motivo}
+
+    # Al llegar al tope, el último pedido de herramientas quedó sin ejecutar (spec.md §5.10):
+    # se cierra cada llamada pendiente con la observación "no ejecutado: tope".
+    ultimo = state["messages"][-1] if state.get("messages") else None
+    pendientes = getattr(ultimo, "tool_calls", None) or []
+    if pendientes and state.get("iteraciones", 0) >= config.MAX_ITERACIONES:
+        salida["messages"] = [
+            ToolMessage(content="no ejecutado: tope", tool_call_id=llamada.get("id", ""))
+            for llamada in pendientes
+        ]
+
+    return salida

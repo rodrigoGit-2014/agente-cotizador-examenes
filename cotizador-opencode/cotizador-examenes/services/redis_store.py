@@ -54,11 +54,8 @@ def crear_indice(client, dimensiones: int) -> None:
     )
 
 
-def asegurar_indice(client, dimensiones: int) -> None:
-    if indice_existe(client):
-        return
-    crear_indice(client, dimensiones)
-    # RediSearch tarda en indexar; esperar brevemente hasta que el índice responda.
+def _esperar_indice(client) -> None:
+    """RediSearch tarda en indexar; espera breve hasta que el índice responda."""
     import time
 
     for _ in range(20):
@@ -67,6 +64,27 @@ def asegurar_indice(client, dimensiones: int) -> None:
             return
         except Exception:
             time.sleep(0.1)
+
+
+def asegurar_indice(client, dimensiones: int) -> None:
+    if indice_existe(client):
+        return
+    crear_indice(client, dimensiones)
+    _esperar_indice(client)
+
+
+def reiniciar_indice(client, dimensiones: int) -> None:
+    """Elimina el índice y sus documentos, y lo recrea (recarga limpia si cambió el corpus).
+
+    `DEL` sobre el nombre del índice no elimina un índice de RediSearch; hay que usar
+    `FT.DROPINDEX` (con `delete_documents=True`).
+    """
+    try:
+        client.ft(config.INDICE_CENTROS).dropindex(delete_documents=True)
+    except Exception:
+        pass
+    crear_indice(client, dimensiones)
+    _esperar_indice(client)
 
 
 def _clave(i: int) -> str:
